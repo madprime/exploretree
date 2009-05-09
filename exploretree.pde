@@ -4,10 +4,16 @@ import java.lang.Math.*;
 // CHANGEME -- use your local path here
 String fileName = "/Users/mad/treeoflife/treeoflife.tree";
 
+String search_name = "Human";
+int search_node = -1;
+int max_dist = 1;
+
 Tree treeoflife;
 
 int maxDepth = 4;
 int curr_node_key = 0;
+int min_stroke_weight = 4;
+int max_stroke_weight = 5;
 
 int[] node_path = { 0 };  // if more than one entry, indicates the node path the tree drawing animation has to take
 float node_path_progress = 0;  // fraction of progress between node_path[0] and node_path[1], should be between 0 and 1
@@ -46,6 +52,10 @@ void setup() {
   tree_height = treeoflife.getHeight();  // Get tree height
   
   smooth();
+  
+  searchNode(search_name,0);
+  max_dist = getDist(0);
+  //println(max_dist);
   //noLoop();
 }
 
@@ -54,7 +64,6 @@ void draw() {
   background(255);
   fill(0);
   
-
   //drawTree(node_path[0], 0, 0, total_num_ends[0]);
   //drawTreeIntermediate(node_path[0], 0, num_ends_covered, total_num_ends, 0, node_path[1]);
   
@@ -140,12 +149,23 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
     float[] xypos = radial_to_xy(radialpos);
     
     // Color this line in the tree based on overall (not local) depth
-    float fraction_depth = currNode.height * 1.0 / tree_height;
-    color levelColor = lerpColor(#0000FF,#FF0000,fraction_depth,HSB);
-    stroke(levelColor,100);
+    //float fraction_depth = currNode.height * 1.0 / tree_height;
+    //color levelColor = lerpColor(#0000FF,#FF0000,fraction_depth,HSB);
+    //color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+    //stroke(levelColor,100);
         
     // Draw lines from here to each of the child nodes
     for (int i = 0; i < numChildren; i++) {
+      float fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
+      color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+      stroke(levelColor,80);
+      if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
+        strokeWeight(max_stroke_weight);
+        stroke(levelColor,160);
+      } else {
+        strokeWeight(min_stroke_weight);
+      }
+      //strokeWeight(min_stroke_weight + (max_stroke_weight - min_stroke_weight) * fraction_dist);
       float[] child_data = child_data_list[i];
       float[] childradialcoord = { child_data[0], child_data[1] };
       float[] childxycoord = radial_to_xy(childradialcoord);
@@ -238,12 +258,21 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
     float[] xypos = radial_to_xy(radialpos);
     
     // Color this line in the tree based on overall (not local) depth
-    float fraction_depth = currNode.height * 1.0 / tree_height;
-    color levelColor = lerpColor(#0000FF,#FF0000,fraction_depth,HSB);
-    stroke(levelColor,100);
+    //float fraction_depth = currNode.height * 1.0 / tree_height;
+    //color levelColor = lerpColor(#0000FF,#FF0000,fraction_depth,HSB);
+    //stroke(levelColor,100);
         
     // Draw lines from here to each of the child nodes
     for (int i = 0; i < numChildren; i++) {
+      float fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
+      color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+      stroke(levelColor,80);
+      if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
+        strokeWeight(max_stroke_weight);
+        stroke(levelColor,160);
+      } else {
+        strokeWeight(min_stroke_weight);
+      }
       float[] child_data = child_data_list[i];
       float[] childradialcoord = { child_data[0], child_data[1] };
       float[] childxycoord = radial_to_xy(childradialcoord);
@@ -260,9 +289,12 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
     String name = currNode.getName();
     name = name.replace("_"," ");
     
-    if (local_progress < 0.25 || in_child == 1) {
-      text(name,xypos[0],xypos[1]-5);
+    if ( in_child == 1) {
+      fill(0);
+    } else {
+      fill(0,255 * (1 - local_progress));
     }
+    text(name,xypos[0],xypos[1]-5);
     
     // Keep track of node positions for interpreting mouse clicks
     int[] posarraydata = { (int) xypos[0], (int) xypos[1], currNode.key };
@@ -318,11 +350,16 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
     textAlign(CENTER,BOTTOM);
     String name = currNode.getName();
     name = name.replace("_"," ");
-    if (local_progress > 0.5 || currDepth < maxDepth + 1) {
-      if (local_progress < 0.25 || in_child == 1) {
-        text(name,xypos[0],xypos[1]-5);
+    if (currDepth == maxDepth + 1) {
+      fill(0,local_progress * 255);
+    } else {
+      if (in_child < 1) {
+        fill(0,(1 - local_progress) * 255);
+      } else {
+        fill(0);
       }
     }
+    text(name,xypos[0],xypos[1]-5);
     
     float[] returndata = { radialpos[0], radialpos[1], (float) num_ends_covered[0], (float) num_ends_covered[1] };
     // return radial position
@@ -452,16 +489,6 @@ int[] nodePath(int nodekey1, int nodekey2) {
     pathtoroot2 = append(pathtoroot2,Node2.parent().key);
     Node2 = Node2.parent();
   }
-  /*
-  for (int i = 0; i < pathtoroot1.length; i++) {
-    print(pathtoroot1[i] + " ");
-  }
-  println();
-  for (int i = 0; i < pathtoroot2.length; i++) {
-    print(pathtoroot2[i] + " ");
-  }
-  println();
-  */
   // Find the first node these paths-to-root overlap
   int connectnode1_index = -1;
   int connectnode2_index = -1;
@@ -481,14 +508,60 @@ int[] nodePath(int nodekey1, int nodekey2) {
   for (int j = connectnode2_index; j >= 0; j--) {
     path = append(path, pathtoroot2[j]);
   }
-  /*
-  for (int i = 0; i < path.length; i++) {
-    print(path[i] + " ");
-  }
-  println();
-  */
+
   return(path);
 }
+
+int getDist (int node_key) {
+  TreeNode Node1 = treeoflife.getNodeByKey(search_node);
+  TreeNode Node2 = treeoflife.getNodeByKey(node_key);
+  
+  // first find paths to root node (key=0)
+  int[] pathtoroot1 = {search_node};
+  int[] pathtoroot2 = {node_key};
+  while (pathtoroot1[pathtoroot1.length-1] != 0) {
+    pathtoroot1 = append(pathtoroot1,Node1.parent().key);
+    Node1 = Node1.parent();
+  }
+  while (pathtoroot2[pathtoroot2.length-1] != 0) {
+    pathtoroot2 = append(pathtoroot2,Node2.parent().key);
+    Node2 = Node2.parent();
+  }
+  // Find the first node these paths-to-root overlap
+  int connectnode1_index = -1;
+  int connectnode2_index = -1;
+  for (int i = 0; i<pathtoroot1.length; i++) {
+    for (int j = 0; j<pathtoroot2.length;j++) {
+      if (connectnode1_index < 0 && (pathtoroot1[i] == pathtoroot2[j])) {
+        connectnode1_index = i;
+        connectnode2_index = j;
+      }
+    }
+  }
+  if (connectnode1_index > connectnode2_index) {
+    return(connectnode1_index+1);
+  } else {
+    return(connectnode2_index+1);
+  }
+  
+}
+
+// recursively search for node with name matching search_name
+void searchNode (String search_name, int curr_node) {
+  TreeNode currNode = treeoflife.getNodeByKey(curr_node);
+  int numChildren = currNode.numberChildren();
+  if (numChildren > 0) {
+    for (int i = 0; i < numChildren; i++) {
+      searchNode(search_name, currNode.getChild(i).key);
+    }
+  }
+  String currName = currNode.getName();
+  String[] matches = match(currName, search_name);
+  if (matches != null) {
+    search_node = currNode.key;
+  }
+}
+
 
 // Chris wrote this tree parser function.
 void parse_tree() {
