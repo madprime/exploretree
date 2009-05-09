@@ -1,57 +1,59 @@
 import processing.opengl.*;
 import java.lang.Math.*;
 
-String search_name = "Human";
-int search_node = -1;
-int max_dist = 1;
-
-Tree treeoflife;
-
+// Constants
 int maxDepth = 4;
-int curr_node_key = 0;
 int min_stroke_weight = 4;
 int max_stroke_weight = 5;
+float inverse_speed = 40; // higher = slower animation
+int sizeX = 1000; // width of plot area
+int sizeY = 700;  // height of plot area
+float borderfrac = 0.06; // fraction of space to leave on border
+float controlarea_height = 150;
 
+// Initialized global variables
 int[] node_path = { 0 };  // if more than one entry, indicates the node path the tree drawing animation has to take
 float node_path_progress = 0;  // fraction of progress between node_path[0] and node_path[1], should be between 0 and 1
-float step_size = 0.05;
-float inverse_speed = 40;
+int search_node = -1;
+String search_name = "";
+String current_search_input = "";
+PFont type_font = createFont("Courier",12);
+PFont plot_font = createFont("Helvetica", 14);
 
-int sizeX, sizeY; // width and height of plot area
+// Uninitialized global variables
+Tree treeoflife;
+int max_dist;
+float step_size;
+int[][] node_positions; // array of all nodes, for each node an array containing xpos, ypos, and nodeID
+int[][] search_result_positions; // array of search results you can click on to create path to target
+
+// constants initialized in setup()
 float plotY1, plotY2; // top and bottom for plot area
 float plotX1, plotX2; // left and right for plot area
-float borderfrac; // fraction of space to leave on border
 float centerX, centerY; // center coordinates for tree
 float maxRadius; // maximum radius to draw tree
 int tree_height; // total tree height of the tree data loaded (not only that displayed)
 
-int[][] node_positions; // array of all nodes, for each node an array containing xpos, ypos, and nodeID
-
-PFont plotFont;
-
 void setup() {
-  sizeX = 1000;
-  sizeY = 600;
   size(sizeX,sizeY);
-  borderfrac = 0.06; 
   plotX1 = sizeX * borderfrac;
   plotX2 = sizeX * (1 - borderfrac);
   plotY1 = sizeX * borderfrac;
-  plotY2 = sizeY * (1 - borderfrac);
+  plotY2 = sizeY * (1 - borderfrac) - controlarea_height;
   centerX = (plotX1 + plotX2) / 2;
   centerY = plotY2;
   maxRadius = plotX2 - centerX;
   
-  plotFont = createFont("Helvetica", 14);
-  textFont(plotFont);
+
+
+  
+
   
   parse_tree();                          // Parse tree file
   tree_height = treeoflife.getHeight();  // Get tree height
   
   smooth();
   
-  searchNode(search_name,0);
-  max_dist = getDist(0);
   //println(max_dist);
   //noLoop();
 }
@@ -60,6 +62,49 @@ void draw() {
   strokeWeight(4);
   background(255);
   fill(0);
+  
+  // line to display search text input
+  textFont(type_font);
+  stroke(0);
+  strokeWeight(1);
+  line(plotX1,plotY2 + 40,plotX1+200,plotY2+40);
+  textAlign(BOTTOM,LEFT);
+  text(current_search_input,plotX1+15,plotY2+35);
+  
+  
+  int[] match_keys = {};
+  search_result_positions = new int[0][3];
+  match_keys = searchNodes(search_name,0,match_keys);
+  if (match_keys.length == 1) {
+    search_node = match_keys[0];
+  }
+  if (match_keys.length > 0 && match_keys.length < 50) {
+    textFont(plot_font);
+    int left_to_post = match_keys.length;
+    int xmod = 0;
+    int ymod = left_to_post / 7;
+    for (int i=0; i<match_keys.length;i++){
+      if (ymod != left_to_post / 7) {
+        xmod = 0;
+      }
+      ymod = left_to_post / 7;
+      //println(ymod);
+      String potential_match_name = treeoflife.getNodeByKey(match_keys[i]).getName();
+      //println(match_keys[i]);
+      textAlign(CENTER,BOTTOM);
+      potential_match_name = potential_match_name.replace("_"," ");
+      float plot_xcoord = plotX1 + (plotX2-plotX1)*((xmod + 0.5)/7);
+      float plot_ycoord = plotY2 + controlarea_height - ymod * 20.0;
+      text(potential_match_name,plot_xcoord, plot_ycoord);
+      left_to_post--;
+      xmod++;
+      int[] temp = {(int) plot_xcoord, (int) plot_ycoord, match_keys[i]};
+      search_result_positions = (int[][]) append(search_result_positions,temp);
+    }
+  }
+  if (search_node >= 0) {
+    max_dist = getDist(0);
+  }
   
   //drawTree(node_path[0], 0, 0, total_num_ends[0]);
   //drawTreeIntermediate(node_path[0], 0, num_ends_covered, total_num_ends, 0, node_path[1]);
@@ -120,6 +165,7 @@ void draw() {
 
 //drawTree draws a tree recursively, from the endpoints inwards
 float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_num_ends) {
+  textFont(plot_font);
 
   TreeNode currNode = treeoflife.getNodeByKey(node_key);
   int numChildren = currNode.numberChildren();
@@ -146,23 +192,22 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
     float[] xypos = radial_to_xy(radialpos);
     
     // Color this line in the tree based on overall (not local) depth
-    //float fraction_depth = currNode.height * 1.0 / tree_height;
-    //color levelColor = lerpColor(#0000FF,#FF0000,fraction_depth,HSB);
-    //color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-    //stroke(levelColor,100);
+    float fraction_dist = currNode.height * 1.0 / tree_height;
+    color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+    stroke(levelColor,100);
+    strokeWeight(min_stroke_weight);
         
     // Draw lines from here to each of the child nodes
     for (int i = 0; i < numChildren; i++) {
-      float fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
-      color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-      stroke(levelColor,80);
-      if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
-        strokeWeight(max_stroke_weight);
-        stroke(levelColor,160);
-      } else {
-        strokeWeight(min_stroke_weight);
+      if (search_node >= 0) {
+        fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
+        levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+        stroke(levelColor,80);
+        if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
+          strokeWeight(max_stroke_weight);
+          stroke(levelColor,160);
+        }
       }
-      //strokeWeight(min_stroke_weight + (max_stroke_weight - min_stroke_weight) * fraction_dist);
       float[] child_data = child_data_list[i];
       float[] childradialcoord = { child_data[0], child_data[1] };
       float[] childxycoord = radial_to_xy(childradialcoord);
@@ -216,7 +261,7 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
 //to keep track of whether we've moved into the target child or not,
 //in_child = 1 if in children, 0 if on the right and -1 if on the left.
 float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered, int[] total_num_ends, int in_child, int target_child_node_key, float local_progress) {
-
+  textFont(plot_font);
   TreeNode currNode = treeoflife.getNodeByKey(node_key);
   int numChildren = currNode.numberChildren();
   
@@ -255,20 +300,21 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
     float[] xypos = radial_to_xy(radialpos);
     
     // Color this line in the tree based on overall (not local) depth
-    //float fraction_depth = currNode.height * 1.0 / tree_height;
-    //color levelColor = lerpColor(#0000FF,#FF0000,fraction_depth,HSB);
-    //stroke(levelColor,100);
+    float fraction_dist = currNode.height * 1.0 / tree_height;
+    color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+    stroke(levelColor,100);
+    strokeWeight(min_stroke_weight);
         
     // Draw lines from here to each of the child nodes
     for (int i = 0; i < numChildren; i++) {
-      float fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
-      color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-      stroke(levelColor,80);
-      if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
-        strokeWeight(max_stroke_weight);
-        stroke(levelColor,160);
-      } else {
-        strokeWeight(min_stroke_weight);
+      if (search_node >= 0) {
+        fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
+        levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
+        stroke(levelColor,80);
+        if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
+          strokeWeight(max_stroke_weight);
+          stroke(levelColor,160);
+        }
       }
       float[] child_data = child_data_list[i];
       float[] childradialcoord = { child_data[0], child_data[1] };
@@ -413,7 +459,7 @@ float[] radial_to_xy(float[] radialpos) {
 // to the node closest to the click, if any are within 50px
 void mousePressed() {
   float minDist = 50;   // don't change position unless at least this close to a node
-  int closestNode = curr_node_key;
+  int closestNode = node_path[0];
   //println(node_positions.length);
   for (int i=0; i<node_positions.length; i++) {
     float distance = pow( (pow((mouseX - node_positions[i][0]),2) + pow((mouseY - node_positions[i][1]),2)), 0.5 );
@@ -423,7 +469,7 @@ void mousePressed() {
     }
   }
   
-  if (closestNode != curr_node_key) {
+  if (closestNode != node_path[0]) {
     // find new node path
     if (node_path.length == 1) {
       node_path = nodePath(node_path[0],closestNode);
@@ -440,33 +486,55 @@ void mousePressed() {
     }
   }
   
-  curr_node_key = closestNode;  // should be able to remove this once animation works
+  // or search for clicks to name search results
+  int new_search_result = search_node;
+  for (int i=0; i<search_result_positions.length; i++) {
+    float distance = pow( (pow((mouseX - search_result_positions[i][0]),2) + pow((mouseY - search_result_positions[i][1]),2)), 0.5 );
+    if (distance < minDist) {
+      new_search_result = search_result_positions[i][2];
+      minDist = distance;
+    }
+  }
+  if (new_search_result != search_node) {
+    search_node = new_search_result;
+    println(new_search_result);
+  }
 }
 
 // If a key is pressed, go back by one node
 void keyPressed() {
-  if (curr_node_key > 0) {    // don't back up if already at the bottom
-    TreeNode Node = treeoflife.getNodeByKey(node_path[node_path.length-1]);
-    int parent_node_key = Node.parent().key;
+  if (key == CODED && (keyCode == DOWN || keyCode == LEFT)) { 
+    if (node_path[node_path.length-1] > 0) {    // don't back up if already at the bottom
+      TreeNode Node = treeoflife.getNodeByKey(node_path[node_path.length-1]);
+      int parent_node_key = Node.parent().key;
         
-    // find new node path
-    if (node_path.length == 1) {
-      node_path = nodePath(node_path[0],parent_node_key);
-    } else {
-      int[] tempnodepath1 = nodePath(node_path[0],parent_node_key);
-      int[] tempnodepath2 = nodePath(node_path[1],parent_node_key);
-      if (tempnodepath1.length > tempnodepath2.length) {    // we were already backing up
-        node_path = tempnodepath1;
+      // find new node path
+      if (node_path.length == 1) {
+        node_path = nodePath(node_path[0],parent_node_key);
       } else {
-        node_path = tempnodepath2;
-        node_path_progress = 1 - node_path_progress;        // reverse course!
-      }
+        int[] tempnodepath1 = nodePath(node_path[0],parent_node_key);
+        int[] tempnodepath2 = nodePath(node_path[1],parent_node_key);
+        if (tempnodepath1.length > tempnodepath2.length) {    // we were already backing up
+          node_path = tempnodepath1;
+        } else {
+          node_path = tempnodepath2;
+          node_path_progress = 1 - node_path_progress;        // reverse course!
+        }
+      }        
     }
-    
-    TreeNode Node_old = treeoflife.getNodeByKey(curr_node_key);   // can delete once animation implemented
-    int parent_node_key_old = Node.parent().key;                  //
-    curr_node_key = parent_node_key_old;                          //
-    
+  } else {
+    if(key == ENTER)
+    {
+      search_name = current_search_input;
+      current_search_input = "";
+    }
+    else if(key == BACKSPACE && current_search_input.length() > 0)
+    {
+      current_search_input = current_search_input.substring(0, current_search_input.length() - 1);
+    }
+    else if (key != CODED) {
+      current_search_input = current_search_input + key;
+    }
   }
 }
 
@@ -535,28 +603,43 @@ int getDist (int node_key) {
       }
     }
   }
-  if (connectnode1_index > connectnode2_index) {
-    return(connectnode1_index+1);
+  if (connectnode1_index == 0 && connectnode2_index == 0) {
+    return(0);
   } else {
-    return(connectnode2_index+1);
+    return (connectnode1_index);
   }
   
 }
 
 // recursively search for node with name matching search_name
-void searchNode (String search_name, int curr_node) {
+int[] searchNodes (String search_name, int curr_node, int[] match_keys) {
   TreeNode currNode = treeoflife.getNodeByKey(curr_node);
+  
+  String currName = currNode.getName();
+  
+  search_name = search_name.replace(" ","_");
+  String[] matches = null;
+  String[] more_matches = null;
+  if (search_name.length() == 0) {
+    search_node = -1;
+  }
+  else if (currName.length() > 1 && search_name.length() > 1) {
+    matches = match(currName.toLowerCase(), search_name.toLowerCase());
+    more_matches = match(search_name.toLowerCase(), currName.toLowerCase());
+  }
+ 
   int numChildren = currNode.numberChildren();
+  if ( (matches != null || more_matches != null) && search_name.length() > 2) {
+    //search_node = currNode.key;
+    match_keys = append(match_keys, currNode.key);
+  }
   if (numChildren > 0) {
     for (int i = 0; i < numChildren; i++) {
-      searchNode(search_name, currNode.getChild(i).key);
+      match_keys = searchNodes(search_name, currNode.getChild(i).key,match_keys);
     }
   }
-  String currName = currNode.getName();
-  String[] matches = match(currName, search_name);
-  if (matches != null) {
-    search_node = currNode.key;
-  }
+
+  return(match_keys);
 }
 
 // Chris wrote this tree parser function.
