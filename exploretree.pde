@@ -5,7 +5,7 @@ import java.lang.Math.*;
 int maxDepth = 4;
 int min_stroke_weight = 4;
 int max_stroke_weight = 5;
-float inverse_speed = 40; // higher = slower animation
+float inverse_speed = 8; // higher = slower animation
 int sizeX = 1000; // width of plot area
 int sizeY = 700;  // height of plot area
 float borderfrac = 0.06; // fraction of space to leave on border
@@ -36,6 +36,8 @@ int tree_height; // total tree height of the tree data loaded (not only that dis
 
 void setup() {
   size(sizeX,sizeY);
+  frameRate(20);
+
   plotX1 = sizeX * borderfrac;
   plotX2 = sizeX * (1 - borderfrac);
   plotY1 = sizeX * borderfrac;
@@ -43,11 +45,6 @@ void setup() {
   centerX = (plotX1 + plotX2) / 2;
   centerY = plotY2;
   maxRadius = plotX2 - centerX;
-  
-
-
-  
-
   
   parse_tree();                          // Parse tree file
   tree_height = treeoflife.getHeight();  // Get tree height
