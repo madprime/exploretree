@@ -1,9 +1,6 @@
 import processing.opengl.*;
 import java.lang.Math.*;
 
-// CHANGEME -- use your local path here
-String fileName = "/Users/mad/treeoflife/treeoflife.tree";
-
 String search_name = "Human";
 int search_node = -1;
 int max_dist = 1;
@@ -562,17 +559,16 @@ void searchNode (String search_name, int curr_node) {
   }
 }
 
-
 // Chris wrote this tree parser function.
 void parse_tree() {
-  File f = new File(fileName);
   try {
-    BufferedReader r = new BufferedReader(new FileReader(f));
+    BufferedReader r = createReader("treeoflife.tree");
     TreeParser tp = new TreeParser(r);
-    treeoflife = tp.tokenize(f.length(), f.getName(), null);
+    // The first arg should be a file length, but it's only used to draw
+    // a progress bar, and we don't know the length of the file yet.
+    treeoflife = tp.tokenize(1, "treeoflife", null);
   }
-  catch (FileNotFoundException e)
-  {
-    System.out.println("Couldn't find file: " + fileName);
+  catch (Exception e) {
+    System.out.println("Couldn't find data file");
   }
 }
