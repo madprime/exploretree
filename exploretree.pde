@@ -11,14 +11,36 @@ int sizeY = 700;  // height of plot area
 float borderfrac = 0.06; // fraction of space to leave on border
 float controlarea_height = 150;
 
+float ButtonSize = 15;
+float depthMinusButtonX = sizeX-40;
+float depthPlusButtonX = sizeX-20;
+float depthButtonY = 15;
+float fontMinusButtonX = sizeX-40;
+float fontPlusButtonX = sizeX-20;
+float fontButtonY = 40;
+float navLeftButtonX = 130;
+float navDownButtonX = 150;
+float navOutButtonY = 15;
+float navUpButtonX = 130;
+float navRightButtonX = 150;
+float navInButtonY = 40;
+float infoTextX = sizeX-15;
+float infoTextY = sizeY - (controlarea_height + 20);
+
+color start_color = #AA00FF;
+color end_color = #FF0000;
+
 // Initialized global variables
 int[] node_path = { 0 };  // if more than one entry, indicates the node path the tree drawing animation has to take
 float node_path_progress = 0;  // fraction of progress between node_path[0] and node_path[1], should be between 0 and 1
 int search_node = -1;
 String search_name = "";
 String current_search_input = "";
-PFont type_font = createFont("Courier",12);
-PFont plot_font = createFont("Helvetica", 14);
+int font_size = 14;
+PFont type_font = createFont("Courier",14);
+PFont display_font = createFont("Helvetica",14);
+PFont display_font_small = createFont("Helvetica",10);
+PFont plot_font = createFont("Helvetica",font_size);
 
 // Uninitialized global variables
 Tree treeoflife;
@@ -56,48 +78,138 @@ void setup() {
 }
 
 void draw() {
-  strokeWeight(4);
   background(255);
-  fill(0);
+  
+  // Depth adjustment buttons
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String depthLabel = "Depth:";
+  text(depthLabel,depthMinusButtonX - 12, depthButtonY - 2);
+  rect(depthMinusButtonX-0.5*ButtonSize,depthButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(depthPlusButtonX-0.5*ButtonSize,depthButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  String minus_sign = "-";
+  String plus_sign = "+";
+  text(minus_sign,depthMinusButtonX,depthButtonY-2);
+  text(plus_sign,depthPlusButtonX,depthButtonY-2);
+  
+  // Font size adjustment buttons
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String fontLabel = "Font Size:";
+  text(fontLabel,fontMinusButtonX - 12, fontButtonY - 2);
+  rect(fontMinusButtonX-0.5*ButtonSize,fontButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(fontPlusButtonX-0.5*ButtonSize,fontButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  text(minus_sign,fontMinusButtonX,fontButtonY-2);
+  text(plus_sign,fontPlusButtonX,fontButtonY-2);
+  
+  // Navigation buttons
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String navOutLabel = "Back up:";
+  text(navOutLabel,navLeftButtonX - 12, navOutButtonY - 2);
+  rect(navLeftButtonX-0.5*ButtonSize,navOutButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(navDownButtonX-0.5*ButtonSize,navOutButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  String left_arrow = "←";
+  String down_arrow = "↓";
+  text(left_arrow,navLeftButtonX,navOutButtonY);
+  text(down_arrow,navDownButtonX,navOutButtonY);
+  fill(100);
+  textAlign(RIGHT,CENTER);
+  String navInLabel = "Forward on path:";
+  text(navInLabel,navUpButtonX - 12, navInButtonY - 2);
+  rect(navUpButtonX-0.5*ButtonSize,navInButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(navRightButtonX-0.5*ButtonSize,navInButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  String right_arrow = "→";
+  String up_arrow = "↑";
+  text(up_arrow,navUpButtonX,navInButtonY);
+  text(right_arrow,navRightButtonX,navInButtonY);
+  
+  // info text
+  fill(100);
+  textAlign(RIGHT,CENTER);
+  String info_text1 = "Right click or control-click  ";
+  String info_text2 = "to look for a node's Wikipedia page!";
+  text(info_text1,infoTextX,infoTextY);
+  text(info_text2,infoTextX,infoTextY+18);
   
   // line to display search text input
-  textFont(type_font);
   stroke(0);
   strokeWeight(1);
-  line(plotX1,plotY2 + 40,plotX1+200,plotY2+40);
-  textAlign(BOTTOM,LEFT);
-  text(current_search_input,plotX1+15,plotY2+35);
+  fill(0);
+  textAlign(RIGHT,BOTTOM);
+  textFont(display_font);
+  String searchlinelabel = "Search for organism:";
+  text(searchlinelabel,plotX1+130,plotY2+45);
+  textAlign(LEFT,BOTTOM);
+  textFont(type_font);
+  line(plotX1+150,plotY2 + 45,plotX1+350,plotY2+45);
+  text(current_search_input,plotX1+160,plotY2+45);
   
-  
+  // Display possible matches
+  fill(220);
+  noStroke();
+  rect(0,plotY2+55,sizeX,sizeY-(plotY2+55));
+  fill(0);
   int[] match_keys = {};
   search_result_positions = new int[0][3];
   match_keys = searchNodes(search_name,0,match_keys);
   if (match_keys.length == 1) {
     search_node = match_keys[0];
   }
-  if (match_keys.length > 0 && match_keys.length < 50) {
-    textFont(plot_font);
+  if (match_keys.length == 0 && search_name.length() > 0) {
+    textAlign(CENTER,CENTER);
+    textFont(display_font);
+    String nomatches_text = "No matches found.";
+    text(nomatches_text,plotX1 + 100,plotY2+75);
+  }
+  else if (match_keys.length > 0 && match_keys.length < 25) {
+    textFont(display_font);
     int left_to_post = match_keys.length;
     int xmod = 0;
-    int ymod = left_to_post / 7;
+    int ymod = left_to_post / 6;
     for (int i=0; i<match_keys.length;i++){
-      if (ymod != left_to_post / 7) {
+      if (ymod != left_to_post / 6) {
         xmod = 0;
       }
-      ymod = left_to_post / 7;
+      ymod = left_to_post / 6;
       //println(ymod);
       String potential_match_name = treeoflife.getNodeByKey(match_keys[i]).getName();
       //println(match_keys[i]);
-      textAlign(CENTER,BOTTOM);
+      textAlign(CENTER,CENTER);
       potential_match_name = potential_match_name.replace("_"," ");
-      float plot_xcoord = plotX1 + (plotX2-plotX1)*((xmod + 0.5)/7);
-      float plot_ycoord = plotY2 + controlarea_height - ymod * 20.0;
+      float plot_xcoord = plotX1 + (plotX2-plotX1)*((xmod + 0.5)/6);
+      float plot_ycoord = plotY2 + 75 + ymod * 24.0;
+      if (match_keys[i] == search_node) {
+        float ellipse_width = 20 + textWidth(potential_match_name);
+        fill(255);
+        ellipse(plot_xcoord,plot_ycoord,ellipse_width,20);
+        fill(0);
+      }
       text(potential_match_name,plot_xcoord, plot_ycoord);
       left_to_post--;
       xmod++;
       int[] temp = {(int) plot_xcoord, (int) plot_ycoord, match_keys[i]};
       search_result_positions = (int[][]) append(search_result_positions,temp);
     }
+  }
+  else if (match_keys.length >= 25) {
+    textFont(display_font);
+    String manymatches_text = "Too many matches!";
+    text(manymatches_text,plotX1 + 100,plotY2+72);
   }
   if (search_node >= 0) {
     max_dist = getDist(0);
@@ -163,6 +275,7 @@ void draw() {
 //drawTree draws a tree recursively, from the endpoints inwards
 float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_num_ends) {
   textFont(plot_font);
+  fill(0);
 
   TreeNode currNode = treeoflife.getNodeByKey(node_key);
   int numChildren = currNode.numberChildren();
@@ -190,19 +303,19 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
     
     // Color this line in the tree based on overall (not local) depth
     float fraction_dist = currNode.height * 1.0 / tree_height;
-    color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-    stroke(levelColor,100);
+    color levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
+    stroke(levelColor,70);
     strokeWeight(min_stroke_weight);
         
     // Draw lines from here to each of the child nodes
     for (int i = 0; i < numChildren; i++) {
       if (search_node >= 0) {
         fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
-        levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-        stroke(levelColor,80);
+        levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
+        stroke(levelColor,50);
         if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
           strokeWeight(max_stroke_weight);
-          stroke(levelColor,160);
+          stroke(levelColor,150);
         }
       }
       float[] child_data = child_data_list[i];
@@ -211,11 +324,11 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
       line(xypos[0],xypos[1],childxycoord[0],childxycoord[1]);
     }
     
-    // Place the name text above this node
-    textAlign(CENTER,BOTTOM);
+    // Place the name text on node
     String name = currNode.getName();
+    textAlign(CENTER,BOTTOM);
     name = name.replace("_"," ");
-    text(name,xypos[0],xypos[1]-5);
+    text(name,xypos[0],xypos[1]);    
     
     // Keep track of node positions for interpreting mouse clicks
     int[] posarraydata = { (int) xypos[0], (int) xypos[1], currNode.key };
@@ -244,7 +357,7 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
     textAlign(CENTER,BOTTOM);
     String name = currNode.getName();
     name = name.replace("_"," ");
-    text(name,xypos[0],xypos[1]-5);
+    text(name,xypos[0],xypos[1]);
     
     float[] returndata = { radialpos[0], radialpos[1], (float) num_ends_covered };
     // return radial position
@@ -259,6 +372,7 @@ float[] drawTree(int node_key, int currDepth, int num_ends_covered, int total_nu
 //in_child = 1 if in children, 0 if on the right and -1 if on the left.
 float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered, int[] total_num_ends, int in_child, int target_child_node_key, float local_progress) {
   textFont(plot_font);
+  fill(0);
   TreeNode currNode = treeoflife.getNodeByKey(node_key);
   int numChildren = currNode.numberChildren();
   
@@ -298,19 +412,19 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
     
     // Color this line in the tree based on overall (not local) depth
     float fraction_dist = currNode.height * 1.0 / tree_height;
-    color levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-    stroke(levelColor,100);
+    color levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
+    stroke(levelColor,70);
     strokeWeight(min_stroke_weight);
         
     // Draw lines from here to each of the child nodes
     for (int i = 0; i < numChildren; i++) {
       if (search_node >= 0) {
         fraction_dist = (1.0 * max_dist - getDist(currNode.getChild(i).key)) / max_dist;
-        levelColor = lerpColor(#0000FF,#FF0000,fraction_dist,HSB);
-        stroke(levelColor,80);
+        levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
+        stroke(levelColor,50);
         if (getDist(currNode.getChild(i).key) < getDist(currNode.key)) {
           strokeWeight(max_stroke_weight);
-          stroke(levelColor,160);
+          stroke(levelColor,150);
         }
       }
       float[] child_data = child_data_list[i];
@@ -334,7 +448,7 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
     } else {
       fill(0,255 * (1 - local_progress));
     }
-    text(name,xypos[0],xypos[1]-5);
+    text(name,xypos[0],xypos[1]);
     
     // Keep track of node positions for interpreting mouse clicks
     int[] posarraydata = { (int) xypos[0], (int) xypos[1], currNode.key };
@@ -399,7 +513,7 @@ float[] drawTreeIntermediate(int node_key, int currDepth, int[] num_ends_covered
         fill(0);
       }
     }
-    text(name,xypos[0],xypos[1]-5);
+    text(name,xypos[0],xypos[1]);
     
     float[] returndata = { radialpos[0], radialpos[1], (float) num_ends_covered[0], (float) num_ends_covered[1] };
     // return radial position
@@ -458,6 +572,48 @@ void mousePressed() {
   float minDist = 50;   // don't change position unless at least this close to a node
   int closestNode = node_path[0];
   //println(node_positions.length);
+  if (abs(mouseX - depthMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= (ButtonSize / 2) && maxDepth > 2) {
+    maxDepth--;
+  }
+  else if (abs(mouseX - depthPlusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= ButtonSize / 2) {
+    maxDepth++;
+  }
+  else if (abs(mouseX - fontMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - fontButtonY) <= (ButtonSize / 2) && font_size > 1) {
+    font_size--;
+    plot_font = createFont("Helvetica",font_size);
+  }
+  else if (abs(mouseX - fontPlusButtonX) <= (ButtonSize / 2) && abs(mouseY - fontButtonY) <= ButtonSize / 2) {
+    font_size++;
+    plot_font = createFont("Helvetica",font_size);
+  }
+  else if ( (abs(mouseX - navLeftButtonX) <= (ButtonSize / 2) && abs(mouseY - navOutButtonY) <= ButtonSize / 2) || (abs(mouseX - navDownButtonX) <= (ButtonSize / 2) && abs(mouseY - navOutButtonY) <= ButtonSize / 2) ) {
+    if (node_path[node_path.length-1] > 0) {    // don't back up if already at the bottom
+      TreeNode Node = treeoflife.getNodeByKey(node_path[node_path.length-1]);
+      int parent_node_key = Node.parent().key;
+        
+      // find new node path
+      if (node_path.length == 1) {
+        node_path = nodePath(node_path[0],parent_node_key);
+      } else {
+        int[] tempnodepath1 = nodePath(node_path[0],parent_node_key);
+        int[] tempnodepath2 = nodePath(node_path[1],parent_node_key);
+        if (tempnodepath1.length > tempnodepath2.length) {    // we were already backing up
+          node_path = tempnodepath1;
+        } else {
+          node_path = tempnodepath2;
+          node_path_progress = 1 - node_path_progress;        // reverse course!
+        }
+      }        
+    }
+  }
+  else if ( ((abs(mouseX - navUpButtonX) <= (ButtonSize / 2) && abs(mouseY - navInButtonY) <= ButtonSize / 2) || (abs(mouseX - navRightButtonX) <= (ButtonSize / 2) && abs(mouseY - navInButtonY) <= ButtonSize / 2)) && (search_node > 0)) {
+    int[] search_node_to_root_path = nodePath(search_node,0);
+    for (int i = 1; i < search_node_to_root_path.length; i++) {
+      if (node_path[node_path.length-1] == search_node_to_root_path[i]) {
+        node_path = append(node_path,search_node_to_root_path[i-1]);
+      }
+    }
+  }
   for (int i=0; i<node_positions.length; i++) {
     float distance = pow( (pow((mouseX - node_positions[i][0]),2) + pow((mouseY - node_positions[i][1]),2)), 0.5 );
     if (distance < minDist) {
@@ -466,7 +622,7 @@ void mousePressed() {
     }
   }
   
-  if (closestNode != node_path[0]) {
+  if (closestNode != node_path[0] && mouseButton == LEFT) {
     // find new node path
     if (node_path.length == 1) {
       node_path = nodePath(node_path[0],closestNode);
@@ -481,6 +637,12 @@ void mousePressed() {
         node_path_progress = 1 - node_path_progress;
       }
     }
+  } else if (mouseButton == RIGHT) {
+      String name = treeoflife.getNodeByKey(closestNode).getName();
+      if (name.length() > 0) {
+        String url = "http://en.wikipedia.org/wiki/" + name;
+        link(url, "_new"); 
+      }
   }
   
   // or search for clicks to name search results
@@ -518,6 +680,13 @@ void keyPressed() {
           node_path_progress = 1 - node_path_progress;        // reverse course!
         }
       }        
+    }
+  } else if (key == CODED && (keyCode == UP || keyCode == RIGHT) && (search_node > 0)) {
+    int[] search_node_to_root_path = nodePath(search_node,0);
+    for (int i = 1; i < search_node_to_root_path.length; i++) {
+      if (node_path[node_path.length-1] == search_node_to_root_path[i]) {
+        node_path = append(node_path,search_node_to_root_path[i-1]);
+      }
     }
   } else {
     if(key == ENTER)
