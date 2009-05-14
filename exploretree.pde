@@ -811,7 +811,7 @@ int[] searchNodes (String search_name, int curr_node, int[] match_keys) {
 // Chris wrote this tree parser function.
 void parse_tree() {
   try {
-    BufferedReader r = createReader("treeoflife.tree");
+    BufferedReader r = createReader("treeoflife.tree"); //itol_65ormore_newick.txt"); 
     TreeParser tp = new TreeParser(r);
     // The first arg should be a file length, but it's only used to draw
     // a progress bar, and we don't know the length of the file yet.
