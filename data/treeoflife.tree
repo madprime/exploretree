@@ -72,7 +72,8 @@
                  Spider_plant,
                  Yucca
                 )Agavaceae,
-                Hyacinth
+                Hyacinth,
+                Lily_of_the_valley
                ),
                (
                 Iris,
@@ -197,13 +198,20 @@
                  (
                   (
                    Coca_plant,
-                   Poinsettia,
+                   (
+                    Poinsettia,
+                    Cassava
+                   ),
                    St_Johns_wort,
                    Flax,
                    Passion_flower,
                    (
                     Willow,
-                    Poplar
+                    (
+                     Poplar,
+                     Aspen,
+                     Cottonwood
+                    )
                    ),
                    (
                     Violet,
@@ -239,7 +247,10 @@
                      ),
                      (
                       Mulberry,
-                      Fig
+                      (
+                       Fig,
+                       Ficus
+                      )
                      ),
                      (
                       (
@@ -482,6 +493,7 @@
                    Marjoram,
                    Oregano
                   ),
+                  Teak,
                   Thyme,
                   Lavender
                  )Mint_family,
@@ -659,7 +671,8 @@
                  Carp,
                  Goldfish
                 ),
-                Minnow
+                Minnow,
+                Zebrafish
                ),
                Electric_eel,
                Catfish
@@ -1146,16 +1159,26 @@
                        Coral_snake
                       ),
                       (
+                       Cottonmouth,
                        Viper,
+                       Adder,
                        Rattlesnake
+                      ),
+                      (
+                      Garter_snake,
+                      Corn_snake,
+                      (
+                       Kingsnake,
+                       Milk_snake
                       )
+                     )
                      ),
                      Boa
                     )Snakes,
                     (
                      Gila_monster,
                      (
-                      Monitor_lizaard,
+                      Monitor_lizard,
                       Komodo_dragon
                      )
                     ),
@@ -1200,7 +1223,10 @@
        )Deuterostomes,
        (
         (
-         Nematode,
+         (
+          Nematode,
+          C_elegans
+         ),
          (
           (
            (
