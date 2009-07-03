@@ -5,10 +5,10 @@ int maxDepth = 4;
 int min_stroke_weight = 4;
 int max_stroke_weight = 5;
 float inverse_speed = 8; // higher = slower animation
-int sizeX = 1000; // width of plot area
-int sizeY = 700;  // height of plot area
+int sizeX = 800; // width of plot area
+int sizeY = 600;  // height of plot area
 float borderfrac = 0.06; // fraction of space to leave on border
-float controlarea_height = 150;
+float controlarea_height = 120;
 
 float ButtonSize = 15;
 float depthMinusButtonX = sizeX-40;
@@ -35,10 +35,10 @@ float node_path_progress = 0;  // fraction of progress between node_path[0] and 
 int search_node = -1;
 String search_name = "";
 String current_search_input = "";
-int font_size = 14;
-PFont type_font = createFont("Courier",14);
-PFont display_font = createFont("Helvetica",14);
-PFont display_font_small = createFont("Helvetica",10);
+int font_size = 12;
+PFont type_font = createFont("Courier",12);
+PFont display_font = createFont("Helvetica",12);
+PFont display_font_small = createFont("Helvetica",9);
 PFont plot_font = createFont("Helvetica",font_size);
 
 // Uninitialized global variables
@@ -151,7 +151,7 @@ void draw() {
   fill(0);
   textAlign(RIGHT,BOTTOM);
   textFont(display_font);
-  String searchlinelabel = "Search for organism:";
+  String searchlinelabel = "Type to search for organism:";
   text(searchlinelabel,plotX1+130,plotY2+45);
   textAlign(LEFT,BOTTOM);
   textFont(type_font);
@@ -810,7 +810,7 @@ int[] searchNodes (String search_name, int curr_node, int[] match_keys) {
 // Chris wrote this tree parser function.
 void parse_tree() {
   try {
-    BufferedReader r = createReader("treeoflife.tree"); //itol_65ormore_newick.txt"); 
+    BufferedReader r = createReader("treeoflife.tree"); 
     TreeParser tp = new TreeParser(r);
     // The first arg should be a file length, but it's only used to draw
     // a progress bar, and we don't know the length of the file yet.
