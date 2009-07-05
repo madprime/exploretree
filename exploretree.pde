@@ -1,3 +1,10 @@
+// ExploreTree is licensed under the GNU GPLv2 or higher, at your choice.
+// It uses libnewicktree, which is code from the TreeJuxtaposer project
+// and is licensed under the BSD license.
+//
+// Authors:  Madeleine Ball <mad-et@printf.net>,
+//           Chris Ball <chris-et@printf.net>
+
 import java.lang.Math.*;
 
 // Constants
