@@ -32,6 +32,7 @@ float navRightButtonX = 150;
 float navInButtonY = 40;
 float infoTextX = sizeX-15;
 float infoTextY = sizeY - (controlarea_height + 20);
+int searchBoxFocus = 0;
 
 color start_color = #AA00FF;
 color end_color = #FF0000;
@@ -122,27 +123,27 @@ void draw() {
   textFont(display_font);
   textAlign(RIGHT,CENTER);
   String navOutLabel = "Back up:";
-  text(navOutLabel,navLeftButtonX - 12, navOutButtonY - 2);
+  text(navOutLabel,navLeftButtonX - 12, navOutButtonY - 1);
   rect(navLeftButtonX-0.5*ButtonSize,navOutButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
   rect(navDownButtonX-0.5*ButtonSize,navOutButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
   fill(255);
   textAlign(CENTER,CENTER);
   String left_arrow = "←";
   String down_arrow = "↓";
-  text(left_arrow,navLeftButtonX,navOutButtonY);
-  text(down_arrow,navDownButtonX,navOutButtonY);
+  text(left_arrow,navLeftButtonX,navOutButtonY-3);
+  text(down_arrow,navDownButtonX,navOutButtonY-3);
   fill(100);
   textAlign(RIGHT,CENTER);
   String navInLabel = "Forward on path:";
-  text(navInLabel,navUpButtonX - 12, navInButtonY - 2);
+  text(navInLabel,navUpButtonX - 12, navInButtonY - 1);
   rect(navUpButtonX-0.5*ButtonSize,navInButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
   rect(navRightButtonX-0.5*ButtonSize,navInButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
   fill(255);
   textAlign(CENTER,CENTER);
   String right_arrow = "→";
   String up_arrow = "↑";
-  text(up_arrow,navUpButtonX,navInButtonY);
-  text(right_arrow,navRightButtonX,navInButtonY);
+  text(up_arrow,navUpButtonX,navInButtonY-3);
+  text(right_arrow,navRightButtonX,navInButtonY-3);
   
   // info text
   fill(100);
@@ -153,13 +154,18 @@ void draw() {
   text(info_text2,infoTextX,infoTextY+18);
   
   // line to display search text input
-  stroke(0);
   strokeWeight(1);
-  fill(0);
+  if (searchBoxFocus == 0) {
+    stroke(120);
+    fill(120);
+  } else {
+    stroke(0);
+    fill(0);
+  }
   textAlign(RIGHT,BOTTOM);
   textFont(display_font);
-  String searchlinelabel = "Type to search for organism:";
-  text(searchlinelabel,plotX1+130,plotY2+45);
+  String searchlinelabel = "Type to search for an organism:";
+  text(searchlinelabel,plotX1+140,plotY2+45);
   textAlign(LEFT,BOTTOM);
   textFont(type_font);
   line(plotX1+150,plotY2 + 45,plotX1+350,plotY2+45);
@@ -578,6 +584,11 @@ void mousePressed() {
   float minDist = 50;   // don't change position unless at least this close to a node
   int closestNode = node_path[0];
   //println(node_positions.length);
+  if (abs(mouseX - (plotX1+170)) <= 200 && abs(mouseY - (plotY2+39)) <= 12) {
+    searchBoxFocus = 1;
+  } else {
+    searchBoxFocus = 0;
+  }
   if (abs(mouseX - depthMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= (ButtonSize / 2) && maxDepth > 2) {
     maxDepth--;
   }
