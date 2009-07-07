@@ -202,7 +202,7 @@ void draw() {
       if (match_keys[i] == search_node) {
         float ellipse_width = 20 + textWidth(potential_match_name);
         fill(255);
-        ellipse(plot_xcoord,plot_ycoord,ellipse_width,20);
+        ellipse(plot_xcoord,plot_ycoord+1,ellipse_width,20);
         fill(0);
       }
       text(potential_match_name,plot_xcoord, plot_ycoord);
