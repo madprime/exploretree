@@ -43,10 +43,10 @@ int search_node = -1;
 String search_name = "";
 String current_search_input = "";
 int font_size = 12;
-PFont type_font = createFont("Courier",12);
-PFont display_font = createFont("Helvetica",12);
-PFont display_font_small = createFont("Helvetica",9);
-PFont plot_font = createFont("Helvetica",font_size);
+PFont type_font = createFont("Courier New",12);
+PFont display_font = createFont("Arial",12);
+PFont display_font_small = createFont("Arial",9);
+PFont plot_font = createFont("Arial",font_size);
 
 // Uninitialized global variables
 Tree treeoflife;
@@ -586,11 +586,11 @@ void mousePressed() {
   }
   else if (abs(mouseX - fontMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - fontButtonY) <= (ButtonSize / 2) && font_size > 1) {
     font_size--;
-    plot_font = createFont("Helvetica",font_size);
+    plot_font = createFont("Arial",font_size);
   }
   else if (abs(mouseX - fontPlusButtonX) <= (ButtonSize / 2) && abs(mouseY - fontButtonY) <= ButtonSize / 2) {
     font_size++;
-    plot_font = createFont("Helvetica",font_size);
+    plot_font = createFont("Arial",font_size);
   }
   else if ( (abs(mouseX - navLeftButtonX) <= (ButtonSize / 2) && abs(mouseY - navOutButtonY) <= ButtonSize / 2) || (abs(mouseX - navDownButtonX) <= (ButtonSize / 2) && abs(mouseY - navOutButtonY) <= ButtonSize / 2) ) {
     if (node_path[node_path.length-1] > 0) {    // don't back up if already at the bottom
