@@ -114,7 +114,7 @@ class Tree {
   }
   
   void addNode(TreeNode input_node) {
-    println("In addNode");
+    //println("In addNode");
     // Check if this node exists; update or add as needed
     if (tree_data.containsKey(input_node.node_ID)) {
       
@@ -123,14 +123,14 @@ class Tree {
     }
     // Check if parent exists; update or add as needed
     if (tree_data.containsKey(input_node.parent_ID)) {
-      println("Tree.addNode: Adding " + input_node.node_ID + " to children of " + input_node.parent_ID);
+      //println("Tree.addNode: Adding " + input_node.node_ID + " to children of " + input_node.parent_ID);
       TreeNode parent_node = (TreeNode) tree_data.get(input_node.parent_ID);
       parent_node.children = (int[]) append(parent_node.children, input_node.node_ID);
       //for (int i = 0; i < parent_node.children.length; i++) { println(parent_node.children[i]); };
       tree_data.put(input_node.parent_ID,parent_node);
     } else {
       TreeNode parent_node = new TreeNode(input_node.parent_ID,-1,"",1.0);
-      println("Tree.addNode: Making new parent node " + parent_node.node_ID + " with child " + input_node.node_ID);
+      //println("Tree.addNode: Making new parent node " + parent_node.node_ID + " with child " + input_node.node_ID);
       parent_node.children = (int[]) append(parent_node.children,input_node.node_ID);
       tree_data.put(input_node.parent_ID,parent_node);
     }

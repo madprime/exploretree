@@ -8,9 +8,13 @@
   (
    (
     (
-     Giardia,
-     Trichomonas
-    ),
+     Euglena,
+     (
+      Giardia,
+      Trichomonas
+     )Metamonada
+    )Excavata,
+    Foraminifera,
     (
      (
       (
@@ -576,10 +580,12 @@
           )Flowering_plants,
           (
            (
-            Cycads,
-            Sago_palm
+            (
+             Cycads,
+             Sago_palm
+            ),
+            Ginkgo
            ),
-           Ginkgo,
            ( 
             (
              Pine,
@@ -617,13 +623,21 @@
     (
      (
       (
-       Brown_algae,
+       Fucus_vesiculosus,
        Kelp
-      ),
+      )Brown_algae,
       Diatom
-     ),
-     Malaria_parasite,
-     Toxoplamosis
+     )Heterokonts,
+     (
+      Dinoflagellate,
+      (
+       (
+        Cryptosporidiosis,
+        Toxoplasmosis
+       )Coccidia,
+       Malaria_parasite
+      )Apicomplexa
+     )Alveolata
     )Chromalveolata
    )Bikonts,
    (
@@ -639,9 +653,14 @@
        (
         Coral,
         Sea_anemone
-       ),
-       Jellyfish
-      ),
+       )Anthozoa,
+       (
+        Lion's_mane_jellyfish,
+        Sea_nettle
+       )Scyphozoa,
+       Box_jellyfish,
+       Portuguese_Man_o'_War
+      )Cnidaria,
       (
        (
         (
@@ -650,8 +669,43 @@
          (
           (
            (
-            Ray,
-            Shark
+            (
+             (
+              Sawfish,
+              (
+               Skate,
+               Stingray,
+               Manta_ray
+              )Rajiformes
+             )Rays,
+             (
+              Frilled_shark,
+              Whale_shark,
+              (
+               (
+                Great_white_shark,
+                Mako_shark
+               )Lamnidae,
+               Megamouth_shark
+              )Lamniformes,
+              (
+               Hammerhead_shark,
+               (
+                (
+                 Oceanic_whitetip_shark,
+                 Blacktip_reef_shark,
+                 Bull_shark
+                )Carcharhinus,
+                Tiger_shark
+               )Requiem_sharks
+              )Carcharhiniformes,
+              (
+               Pacific_sleeper_shark,
+               Greenland_shark
+              )Sleeper_sharks
+             )Sharks
+            )Elasmobranchii,
+            Ratfish
            )Cartilaginous_fish,
            (
             (
@@ -1127,7 +1181,10 @@
                       Booby
                      ),
                      Flamingo,
-                     Woodpecker,
+                     (
+                      Woodpecker,
+                      Toucan
+                     ),
                      (
                       Cockatoo,
                       (
@@ -1208,181 +1265,287 @@
          )Vertebrates
         )Chordates,
         (
-         Sea_star,
+         Crinoid,
          (
-          Brittle_star,
+          (
+           Sea_star,
+           Brittle_star
+          ),
           (
            Sea_cucumber,
            (
             Sea_urchin,
             Sand_dollar
-           )
+           )Echinoidea
           )
-         )
+         )Eleutherozoa
         )Echinoderms
        )Deuterostomes,
        (
         (
          (
-          Nematode,
-          C_elegans
-         ),
+          (
+           Heartworm,
+           Caenorhabditis_elegans
+          )Secernentea,
+          Whipworm
+         )Nematodes,
          (
+          Tardigrade,
           (
            (
-            Horseshoe_crab,
             (
              Scorpion,
              (
               (
-               Mite,
-               Tick
-              ),
-              Spider
-             )
-            )
+               Dust_mite,
+               Harvest_mite
+              )Acariformes,
+              Tick
+             )Acarina,
+             (
+              Tarantula,
+              (
+               (
+                Wolf_spider,
+                (
+                 Orb-weaver_spiders,
+                 Widow_spiders
+                )Araneoidea,
+                Huntsman_spider,
+                Jumping_spider
+               )Entelegynae,
+               (
+                Daddy_long-legs,
+                Brown_recluse_spider
+               )Haplogynae
+              )Araneomorphae
+             )Spiders,
+             Camel_spider,
+             Harvestman
+            )Arachnids,
+            Horseshoe_crab,
+            Sea_spider
            )Chelicerata,
            (
-            Centipede,
-            Millipede
-           )Myriapods
-          ),
-          (
-           (
-            Barnacle,
             (
-             Brine_shrimp,
-             Daphnia
-            ),
-            (
-             Pill-bug,
              (
-              Prawn,
               (
-               Shrimp,
-               (
-                Lobster,
-                Crayfish
-               ),
-               Hermit_crab,
-               Crab
-              )
-             )
-            )
-           )Crustaceans,
-           (
-            Silverfish,
-            (
-             Mayfly,
-             Dragonfly,
-             (
-              Walking_stick_bug,
+               Barnacle,
+               Copepod
+              )Maxillopoda,
               (
-               Cricket,
-               Grasshopper,
-               Locust
-              ),
-              (
-               Cockroach,
-               Termite,
-               Preying_mantis
-              ),
-              Earwig,
-              (
-               Cicada,
-               (
-                Bed_bug,
-                Stink_bug
-               ),
-               (
-                Aphid,
-                Whitefly
-               )
-              ),
+               Brine_shrimp,
+               Daphnia
+              )Branchiopoda,
               (
                (
+                Krill,
                 (
-                 Honey_bee,
-                 Bumble_bee
-                ),
+                 Prawn,
+                 (
+                  Shrimp,
+                  (
+                   (
+                    American_lobster,
+                    Norway_lobster
+                   )Lobsters,
+                   Crayfish,
+                   Spiny_lobster
+                  )Astacidea,
+                  Hermit_crab,
+                  Crab
+                 )Pleocyemata
+                )Decapods
+               )Eucarida,
+               Pill-bug,
+               Mantis_shrimp
+              )Malacostraca
+             )Crustaceans,
+             (
+              (
+               (
+                Mayfly,
+                (
+                 Dragonfly,
+                 Damselfly
+                )Odonata,
                 (
                  (
-                  Hornet,
-                  Yellowjacket_wasp
-                 ),
-                 Ant
-                )
-               )Hymenoptera,
-               Beetle,
-               Flea,
-               (
-                Housefly,
-                Common_fruit_fly,
-                Mosquito
-               )Diptera,
-               (
-                (
-                 Swallowtail_butterfly,
+                  Cockroach,
+                  Termite,
+                  Preying_mantis
+                 )Dictyoptera,
                  (
-                  Monarch_butterfly,
-                  Morpho_butterfly
-                 )
-                )Butterflies,
-                Sunset_Moth,
-                Gypsy_Moth,
-                Silkworm
-               )Lepidoptera
-              )
-             )Neoptera
-            )
-           )Insects
-          )
-         )Arthropods
+                  Cicada,
+                  (
+                   Bedbug,
+                   Stink_bug
+                  )Heteroptera,
+                  (
+                   Aphid,
+                   Whitefly
+                  )
+                 )Hemiptera,
+                 (
+                  (
+                   (
+                    Honey_bee,
+                    Bumble_bee
+                   )Apoidea,
+                   (
+                    (
+                     Hornet,
+                     Yellowjacket_wasp
+                    )Vespinae,
+                    Ant
+                   )Vespoidea
+                  )Hymenoptera,
+                  (
+                   Bombadier_beetle,
+                   (
+                    (
+                     Ladybug,
+                     Blister_beetle,
+                     Weevil
+                    )Cucujiformia,
+                    Firefly,
+                    (
+                     Dung_beetle,
+                     Stag_beetle,
+                     Rhinoceros_beetle
+                    )Scarab_beetles
+                   )Polyphaga
+                  )
+                  Beetles,
+                  Flea,
+                  (
+                   (
+                    (
+                     Common_fruit_fly,
+                     (
+                      Tsetse_fly,
+                      (
+                       Blow-fly,
+                       Botfly
+                      )Oestroidea,
+                      Housefly
+                     )Calyptratae
+                    )Muscomorpha,
+                    Horse-fly
+                   )Brachycera,
+                   (
+                    Crane_fly,
+                    Mosquito,
+                    Midge,
+                    Gnat
+                   )Nematocera
+                  )Flies,
+                  (
+                   (
+                    Swallowtail_butterfly,
+                    (
+                     Monarch_butterfly,
+                     Morpho_butterfly
+                    )
+                   )Butterflies,
+                   Sunset_Moth,
+                   Gypsy_Moth,
+                   Silkworm
+                  )Lepidoptera,
+                  Antlion
+                 )Endopterygota,
+                 (
+                  (
+                   Head_louse,
+                   Body_louse
+                  )Sucking_lice,
+                  Crab_louse
+                 )Lice,
+                 (
+                  Cricket,
+                  Grasshopper,
+                  Locust
+                 )Orthoptera,
+                 Earwig,
+                 Walking_stick_bug
+                )Neoptera
+               )Pterygota,
+               Silverfish
+              )Insects,
+              Springtail
+             )Hexapods
+            )Pancrustacea,
+            (
+             Centipede,
+             Millipede
+            )Myriapods
+           )
+          )Arthropods
+         )Panarthropoda
         )Ecdysozoa,
         (
          (
           (
            (
             (
-             Clam,
-             Geoduck
-            ),
-            (
-             Mussel,
-             Oyster
-            )
-           )Bivalves,
+             Zebra_mussel,
+             Giant_clam,
+             Hard_clam,
+             Cockle
+            )Veneroida,
+            Blue_mussel,
+            Geoduck
+           )Heterodonta,
            (
-            Nautilus,
+            Pearl_oyster,
             (
-             Octopus,
-             (
-              Squid,
-              Cuttlefish
-             )
-            )
-           )Cephalopods,
+             True_oyster,
+             Scallop
+            )Ostreoida
+           )Pteriomorphia
+          )Bivalves,
+          (
+           Nautilus,
            (
-            Limpet,
+            Octopus,
+            (
+             Squid,
+             Cuttlefish
+            )
+           )
+          )Cephalopods,
+          Bryozoa,
+          (
+           Limpet,
+           (
             (
              Garden_snail,
-             Banana_slug,
-             Nudibranch
-            ),
-            Abalone
-           )Gastropods,
-           Chiton
-          )Molluscs,
-          Earthworm
-         )Lophotrochozoa,
+             Banana_slug
+            )Eupulmonata,
+            Nudibranch
+           )Heterobranchia,
+           Abalone,
+           Conch
+          )Gastropods,
+          Chiton
+         )Molluscs,
          (
           (
-           Planarian,
-           Tapeworm
-          ),
-          Rotifer
-         )Platyzoa
-        )Spiralia
+           Earthworm,
+           Leech
+          )Clitellata,
+          Bristle_worms
+         )Annelids
+        )Lophotrochozoa,
+        (
+         (
+          Planarian,
+          Tapeworm,
+          Trematoda
+         )Flatworms,
+         Rotifer
+        )Platyzoa
        )Protostomes
       )Bilateria
      )Animals,
@@ -1396,9 +1559,12 @@
        )
       )Ascomycota,
       (
-       Shiitake,
-       Portobello_mushroom,
-       Oyster_mushroom
+       Corn_smut,
+       (
+        Shiitake,
+        Portobello_mushroom,
+        Oyster_mushroom
+       )Agaricomycetes
       )Basidiomycota
      )Fungi
     )
@@ -1406,14 +1572,20 @@
   )Eukaryotes
  ),
  (
-  Clostridium,
   (
+   (
+    Tetanus,
+    Botulism
+   )Clostridium,
    Mycoplasma,
    (
     Staphylococcus,
     (
      Listeria,
-     Bacillus
+     (
+      Bacillus_subtilis,
+      Anthrax
+     )Bacillus
     ),
     (
      Lactobacillus,
@@ -1421,45 +1593,38 @@
     )
    )Bacilli
   )Firmicutes,
+  Chlamydia,
   (
    (
-    Chlamydia,
     (
-     (
-      Mycobacterium_leprae,
-      Mycobacterium_tuberculosis
-     ),
-     Actinomyces
-    )Actinobacteria
-   ),
+     Mycobacterium_leprae,
+     Mycobacterium_tuberculosis
+    )Mycobacterium,
+    Diptheria
+   )Corynebacterium,
+   Propionibacterium_acnes
+  )Actinobacteria,
+  (
+   Helicobacter_pylori,
    (
-    Cyanobacteria,
+    Wolbachia,
+    Agrobacterium_tumefaciens
+   )Alphaproteobacteria,
+   (
+    Neisseria_meningitidis,
+    Gonorrhea
+   )Betaproteobacteria,
+   (
+    Pseudomonas_aeruginosa,
+    Cholera,
     (
-     Helicobacter,
-     (
-      (
-       Wolbachia,
-       Agrobacterium_tumefaciens
-      )Alphaproteobacteria,
-      (
-       Betaproteobacteria,
-       (
-        Pseudomonas,
-        (
-         Vibrio,
-         (
-          Yersinia_pestis,
-          (
-           Salmonella,
-           E_coli
-          )
-         )
-        )
-       )Gammaproteobacteria
-      )
-     )
-    )Proteobacteria
-   )
-  )
+     Bubonic_plague,
+     Salmonella,
+     Escherichia_coli
+    )Enterobacteriales
+   )Gammaproteobacteria
+  )Proteobacteria,
+  Syphilis,
+  Cyanobacteria
  )Bacteria
 )Life;

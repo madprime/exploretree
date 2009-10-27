@@ -146,34 +146,135 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
   return return_data;
 }
 
-int countEnds ( int curr_ID, float depth ) {
+int countEnds ( int curr_ID, float depth, float max_depth ) {
   int ends = 0;
   TreeNode curr_node = treeoflife.getNode(curr_ID);
-  if (curr_node.children.length > 0 && depth < maxDepth) {
+  if (curr_node.children.length > 0 && depth < max_depth) {
     for (int i = 0; i < curr_node.children.length; i++) {
       if (curr_node.children[i] != curr_ID) {            // prevents recursion at base node
         TreeNode child_node = treeoflife.getNode(curr_node.children[i]);
-        ends = ends + countEnds(curr_node.children[i], depth + child_node.distance);
+        ends = ends + countEnds(curr_node.children[i], depth + child_node.distance, max_depth);
       }
     }
   } else {
     ends = 1;
-println("returning an end at " + curr_ID);
+//println("returning an end at " + curr_ID);
   }
   return ends;
+}
+
+int countNodes ( int curr_ID, float depth, float max_depth ) {
+  int nodes = 1;
+  TreeNode curr_node = treeoflife.getNode(curr_ID);
+  if (curr_node.children.length > 0 && depth < max_depth) {
+    for (int i = 0; i < curr_node.children.length; i++) {
+      if (curr_node.children[i] != curr_ID) {            // prevents recursion at base node
+        TreeNode child_node = treeoflife.getNode(curr_node.children[i]);
+        nodes = nodes + countNodes(curr_node.children[i], depth + child_node.distance, max_depth);
+      }
+    }
+  } else {
+    nodes = 1;
+//println("returning an end at " + curr_ID);
+  }
+  return nodes;
+}
+
+int countNamedNodes ( int curr_ID, float depth, float max_depth ) {
+  int nodes = 0;
+  TreeNode curr_node = treeoflife.getNode(curr_ID);
+  if (curr_node.node_name.length() > 1) {
+    nodes = 1;
+    //println(curr_node.node_name + " has length larger than 1 and children " + curr_node.children.length);
+  }
+  if (curr_node.children.length > 0 && depth < max_depth) {
+    for (int i = 0; i < curr_node.children.length; i++) {
+      if (curr_node.children[i] != curr_ID) {            // prevents recursion at base node
+        TreeNode child_node = treeoflife.getNode(curr_node.children[i]);
+        nodes = nodes + countNamedNodes(curr_node.children[i], depth + child_node.distance, max_depth);
+      }
+    }
+  }
+//println("returning an end at " + curr_ID);
+  return nodes;
+}
+
+float maxDepth ( int curr_ID ) {
+//println("maxDepth: getting depth for " + curr_ID);
+  float depth = 0;
+  TreeNode curr_node = treeoflife.getNode(curr_ID);
+  if (curr_node.children.length > 0) {
+    float max_child_depth = 0;
+    for (int i = 0; i < curr_node.children.length; i++) {
+      float child_depth = (treeoflife.getNode(curr_node.children[i]).distance) + maxDepth(curr_node.children[i]);
+      if (max_child_depth < child_depth) {
+        max_child_depth = child_depth;
+      }
+    }
+    depth = max_child_depth;
+  }
+  return(depth);
+}
+
+void nudgeNodes (TreeGraphInstance treegraph) {
+  Object[] keys = treegraph.node_positions.keySet().toArray();
+  for (int i = 0; i < keys.length - 1; i++) {
+    Integer key_i = (Integer) keys[i];
+    NodePlotData node1 = treegraph.getPosition(parseInt(key_i));
+    if (node1.is_visible == true && treeoflife.getNode(node1.node_ID).node_name.length() > 0) {
+      for (int j = i+1; j < keys.length; j++) {
+        Integer key_j = (Integer) keys[j];
+        NodePlotData node2 = treegraph.getPosition(parseInt(key_j));
+        if (node2.is_visible == true && treeoflife.getNode(node2.node_ID).node_name.length() > 0) {
+          NodePlotData high_node = node1;
+          NodePlotData low_node = node2;
+          if (node1.y_coord > node2.y_coord) {
+            high_node = node2;
+            low_node = node1;            
+          }
+          boolean vert_overlap = (high_node.y_coord + (font_size / 2)) >= (low_node.y_coord - (font_size / 2));
+          if (vert_overlap) {
+            NodePlotData left_node = node1;
+            NodePlotData right_node = node2;
+            if (node1.x_coord > node2.x_coord) {
+              left_node = node2;
+              right_node = node1;
+            }
+            float left_node_width = textWidth(treeoflife.getNode(left_node.node_ID).node_name);
+            float right_node_width = textWidth(treeoflife.getNode(right_node.node_ID).node_name);
+            boolean horiz_overlap = (left_node.x_coord + left_node_width / 2) > (right_node.x_coord - right_node_width / 2);
+            if (horiz_overlap) {
+              while (vert_overlap) {
+                high_node.y_coord = high_node.y_coord - 1;
+                vert_overlap = (high_node.y_coord + (font_size / 2)) >= (low_node.y_coord - (font_size / 2));
+              }
+            }
+          }
+        }
+      }
+    }
+  }
 }
 
 void drawTree(TreeGraphInstance treegraph, int curr_ID) {
   //println("Printing tree at " + curr_ID);
   TreeNode curr_node = treeoflife.getNode(curr_ID);
   NodePlotData curr_data = treegraph.getPosition(curr_ID);
+  float[] coords_parent_xy = {curr_data.x_coord, curr_data.y_coord};
+  float[] coords_parent_radial = xy_to_radial(coords_parent_xy);
+  //println("converted parent " + curr_ID + " xy coords " + coords_parent_xy[0] + " " + coords_parent_xy[1] + " to " + coords_parent_radial[0] + " " + coords_parent_radial[1]);
     
-  if (curr_node.children.length > 0) {
+  if (curr_node.children.length > 0 && (curr_data.is_visible || treeoflife.isAncestorOf(curr_ID, treegraph.base_node_ID))) {
     for (int i = 0; i < curr_node.children.length; i++) {
       if (curr_node.children[i] != curr_ID) {   // prevent infinite recursion at root
         NodePlotData child_data = treegraph.getPosition(curr_node.children[i]);
         if (child_data.is_visible) {
-          line(curr_data.x_coord,curr_data.y_coord,child_data.x_coord, child_data.y_coord);
+          if (line_type == 'a') {
+            noFill();
+            drawArcLine(curr_data.x_coord, curr_data.y_coord, child_data.x_coord, child_data.y_coord);
+          } else { 
+            line(curr_data.x_coord,curr_data.y_coord,child_data.x_coord, child_data.y_coord);
+          }
         } else {
         //  println("Child node not visible: " + curr_node.children[i]);
         }
@@ -185,7 +286,6 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
     String name = curr_node.node_name;
     textAlign(CENTER,BOTTOM);
     name = name.replace("_"," ");
-    textFont(plot_font);
     text(name,curr_data.x_coord,curr_data.y_coord);  
     int[] posarraydata = { (int) (curr_data.x_coord + 0.5), (int) (curr_data.y_coord + 0.5), curr_ID };
     visible_node_positions = (int[][]) append(visible_node_positions, posarraydata);
@@ -209,7 +309,7 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   }  
   if (curr_node.children.length > 0) {
     for (int i = 0; i < curr_node.children.length; i++) {
-      if (curr_node.children[i] != curr_ID) {   // prevent infinite recursion at root
+      if (curr_node.children[i] != curr_ID && (curr_data_from.is_visible || curr_data_to.is_visible || treeoflife.isAncestorOf(curr_ID, treegraph_from.base_node_ID) || treeoflife.isAncestorOf(curr_ID, treegraph_to.base_node_ID) )) {   // prevent infinite recursion at root
         NodePlotData child_data_from = treegraph_from.getPosition(curr_node.children[i]);
         NodePlotData child_data_to = treegraph_to.getPosition(curr_node.children[i]);
         float child_x = (child_data_from.x_coord) * (1 - how_far) + (child_data_to.x_coord) * (how_far);
@@ -222,7 +322,12 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
           child_visibility = child_visibility + (how_far);
         }
         if ( child_visibility > 0.001) {
-          line(curr_x,curr_y,child_x, child_y);
+          if (line_type == 'a') {
+            noFill();
+            drawArcLine(curr_x, curr_y, child_x, child_y);
+          } else { 
+            line(curr_x,curr_y,child_x, child_y);
+          }
         }
         drawIntermediateTree(treegraph_from, treegraph_to, how_far, curr_node.children[i]);
       }
@@ -232,12 +337,28 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   String name = curr_node.node_name;
   textAlign(CENTER,BOTTOM);
   name = name.replace("_"," ");
-  textFont(plot_font);
+  
   //println(name);
   text(name,curr_x,curr_y);
   
   int[] posarraydata = { (int) (curr_x + 0.5), (int) (curr_y + 0.5), curr_ID };
   visible_node_positions = (int[][]) append(visible_node_positions, posarraydata);  
+}
+
+void drawArcLine(float parent_x, float parent_y, float child_x, float child_y) {
+  float[] coords_parent_xy = { parent_x, parent_y };
+  float[] coords_child_xy = { child_x, child_y };
+  float[] coords_parent_radial = xy_to_radial(coords_parent_xy);
+  float[] coords_child_radial = xy_to_radial(coords_child_xy);
+  if (coords_child_radial[1] < coords_parent_radial[1]) {
+    arc(centerX, centerY, 2*coords_parent_radial[0], 2*coords_parent_radial[0], -1 * coords_parent_radial[1], -1 * coords_child_radial[1]);
+  } else {
+    arc(centerX, centerY, 2*coords_parent_radial[0], 2*coords_parent_radial[0], -1 * coords_child_radial[1], -1 * coords_parent_radial[1]);
+  }
+  float[] line_start_radial = {coords_parent_radial[0], coords_child_radial[1]};
+  float[] line_start_xy = radial_to_xy(line_start_radial);
+  float[] line_end_xy = radial_to_xy(coords_child_radial);
+  line(line_start_xy[0], line_start_xy[1], line_end_xy[0], line_end_xy[1]);
 }
 
 // Convert radial coordinates to xy coordinates.
@@ -254,8 +375,21 @@ float[] radial_to_xy(float[] radialpos) {
 float[] xy_to_radial(float[] xypos) {
   float x = xypos[0];
   float y = xypos[1];
+  float relative_X = x - centerX;
+  float relative_Y = centerY - y;
   float r = pow(pow(x-centerX,2) + pow(centerY-y,2),0.5);
-  float theta = atan((centerY-y)/(x-centerX));
+  float theta;
+  // Assumption is that y >= 0
+  if (relative_X > 0) {
+    theta = atan(relative_Y/relative_X);
+  }
+  else {
+    if (relative_X < 0) {
+      theta = atan(relative_Y/relative_X) + PI;
+    } else {
+      theta = PI / 2;
+    }
+  }
   float[] returndata = {r, theta};
   return returndata;
 }

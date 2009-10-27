@@ -1,6 +1,6 @@
 
 void mousePressed() {
-  float minDist = 50;                                 // don't change position unless at least this close to a node
+  float minDist = 30;                                 // don't change position unless at least this close to a node
   int closestNode = node_path[node_path.length - 1];  // default to the latest target base node
 
   for (int i=0; i<visible_node_positions.length; i++) {
@@ -9,10 +9,11 @@ void mousePressed() {
       closestNode = visible_node_positions[i][2];
       minDist = distance;
     }
-  } 
-  if (closestNode != node_path[0]) {
+  }
+  if (closestNode != node_path[0] && closestNode != node_path[node_path.length - 1]) {
+    println("node_path " + closestNode + " length is now " + node_path.length);
     node_path = treeoflife.getNodePath(node_path[0],closestNode);
-    node_path = append(node_path, closestNode);
+    //node_path = append(node_path, closestNode);
     println("Appended to node_path " + closestNode + ". length is now " + node_path.length);
   }
   
@@ -100,7 +101,7 @@ else if (mouseButton == RIGHT) {
   }
   if (new_search_result != search_node) {
     search_node = new_search_result;
-    println(new_search_result);
+    //println(new_search_result);
   }
   */
 }
@@ -108,9 +109,9 @@ else if (mouseButton == RIGHT) {
 void keyPressed() {
   if (key == CODED && (keyCode == DOWN || keyCode == LEFT)) { 
     TreeNode curr_node = treeoflife.getNode(node_path[node_path.length - 1]);
-    if (curr_node.parent_ID != node_path[node_path.length - 1]) {
+    if (curr_node.parent_ID != node_path[node_path.length - 1] && treeoflife.root.node_ID != curr_node.node_ID) {
       node_path = append(node_path, curr_node.parent_ID);
-      println("Appended to node_path " + curr_node.parent_ID + ". length is now " + node_path.length);
+      //println("Appended to node_path " + curr_node.parent_ID + ". length is now " + node_path.length);
     }
   }
   /* else if (key == CODED && (keyCode == UP || keyCode == RIGHT) && (search_node > 0)) {
