@@ -216,7 +216,8 @@ float maxDepth ( int curr_ID ) {
   return(depth);
 }
 
-void nudgeNodes (TreeGraphInstance treegraph) {
+boolean nudgeNodes (TreeGraphInstance treegraph) {
+  boolean overlap_found = false;
   Object[] keys = treegraph.node_positions.keySet().toArray();
   for (int i = 0; i < keys.length - 1; i++) {
     Integer key_i = (Integer) keys[i];
@@ -244,6 +245,7 @@ void nudgeNodes (TreeGraphInstance treegraph) {
             float right_node_width = textWidth(treeoflife.getNode(right_node.node_ID).node_name);
             boolean horiz_overlap = (left_node.x_coord + left_node_width / 2) > (right_node.x_coord - right_node_width / 2);
             if (horiz_overlap) {
+              overlap_found = true;
               while (vert_overlap) {
                 high_node.y_coord = high_node.y_coord - 1;
                 vert_overlap = (high_node.y_coord + (font_size / 2)) >= (low_node.y_coord - (font_size / 2));
@@ -254,6 +256,54 @@ void nudgeNodes (TreeGraphInstance treegraph) {
       }
     }
   }
+  return(overlap_found);
+}
+
+boolean hideOverlapNodes (TreeGraphInstance treegraph) {
+  boolean overlap_found = false;
+  Object[] keys = treegraph.node_positions.keySet().toArray();
+  for (int i = 0; i < keys.length - 1; i++) {
+    Integer key_i = (Integer) keys[i];
+    NodePlotData node1 = treegraph.getPosition(parseInt(key_i));
+    if (node1.is_visible == true && treeoflife.getNode(node1.node_ID).node_name.length() > 0) {
+      for (int j = i+1; j < keys.length; j++) {
+        Integer key_j = (Integer) keys[j];
+        NodePlotData node2 = treegraph.getPosition(parseInt(key_j));
+        if (node2.is_visible == true && treeoflife.getNode(node2.node_ID).node_name.length() > 0) {
+          NodePlotData high_node = node1;
+          NodePlotData low_node = node2;
+          if (node1.y_coord > node2.y_coord) {
+            high_node = node2;
+            low_node = node1;            
+          }
+          boolean vert_overlap = (high_node.y_coord + (font_size / 2)) >= (low_node.y_coord - (font_size / 2));
+          if (vert_overlap) {
+            NodePlotData left_node = node1;
+            NodePlotData right_node = node2;
+            if (node1.x_coord > node2.x_coord) {
+              left_node = node2;
+              right_node = node1;
+            }
+            float left_node_width = textWidth(treeoflife.getNode(left_node.node_ID).node_name);
+            float right_node_width = textWidth(treeoflife.getNode(right_node.node_ID).node_name);
+            boolean horiz_overlap = (left_node.x_coord + left_node_width / 2) > (right_node.x_coord - right_node_width / 2);
+            if (horiz_overlap) {
+              // hide farthest node
+              overlap_found = true;
+              float high_node_dist = treeoflife.getDist(treegraph.base_node_ID, high_node.node_ID);
+              float low_node_dist = treeoflife.getDist(treegraph.base_node_ID, low_node.node_ID);
+              if (low_node_dist < high_node_dist) {
+                high_node.text_visible = false;
+              } else {
+                low_node.text_visible = false;
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+  return overlap_found;
 }
 
 void drawTree(TreeGraphInstance treegraph, int curr_ID) {
@@ -282,7 +332,7 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
       }
     }
   }
-  if (curr_data.is_visible) {
+  if (curr_data.is_visible && curr_data.text_visible) {
     String name = curr_node.node_name;
     textAlign(CENTER,BOTTOM);
     name = name.replace("_"," ");
@@ -301,11 +351,18 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   float curr_x = (curr_data_from.x_coord) * (1 - how_far) + curr_data_to.x_coord * (how_far);
   float curr_y = (curr_data_from.y_coord) * (1 - how_far) + curr_data_to.y_coord * (how_far);
   float visibility = 0;
+  float text_visibility = 0;
   if ( curr_data_from.is_visible ) {
     visibility = visibility + (1 - how_far);
+    if (curr_data_from.text_visible) {
+      text_visibility = text_visibility + (1 - how_far);
+    }
   }
   if ( curr_data_to.is_visible ) {
     visibility = visibility + (how_far);
+    if (curr_data_to.text_visible) {
+      text_visibility = text_visibility + how_far;
+    }
   }  
   if (curr_node.children.length > 0) {
     for (int i = 0; i < curr_node.children.length; i++) {
@@ -333,7 +390,7 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
       }
     } 
   }
-  fill(0,255 * visibility);
+  fill(0,255 * text_visibility);
   String name = curr_node.node_name;
   textAlign(CENTER,BOTTOM);
   name = name.replace("_"," ");

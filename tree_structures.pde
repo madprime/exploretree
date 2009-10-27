@@ -9,12 +9,14 @@
 class NodePlotData {
   int node_ID;
   boolean is_visible;
+  boolean text_visible;
   float x_coord;
   float y_coord;
   
   NodePlotData(int passed_node_ID, boolean passed_is_visible, float passed_x_coord, float passed_y_coord) {
     node_ID = passed_node_ID;
     is_visible = passed_is_visible;
+    text_visible = true;
     x_coord = passed_x_coord;
     y_coord = passed_y_coord;
   }

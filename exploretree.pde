@@ -12,12 +12,12 @@ float treeAreaFrac = 0.6;     // vertical fraction of area to devote to tree dra
 
 // tree drawing variables
 float max_depth = 2.4;
-boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes = 12; HashMap max_depth_calc = new HashMap();
+boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes = 24; HashMap max_depth_calc = new HashMap();
 float min_stroke_weight = 3.5, max_stroke_weight = 5;
 color start_color = #0000FF, end_color = #FF0000;
-boolean do_nudgeNodes = true;
+boolean do_nudgeNodes = true; boolean do_hideOverlapNodes = false;
 
-char line_type = 'a'; // 'a' for "arc-and-line-style" and 'v' or anything else for "v-style" 
+char line_type = 'v'; // 'a' for "arc-and-line-style" and 'v' or anything else for "v-style" 
 
 // font drawing variables
 float font_size = 12;
@@ -60,7 +60,7 @@ void setup() {
   maxRadius = plotX2 - centerX;
   
   // set up tree structure global variables
-  treeoflife = TreeReadNewick("temp4"); //treeoflife.tree");
+  treeoflife = TreeReadNewick("treeoflife.tree");
   treeoflife_positions = new TreePositions();
   node_path = append(node_path, treeoflife.root.node_ID);
   
@@ -83,7 +83,7 @@ void draw() {
       max_depth = parseFloat((String) max_depth_calc.get(key_string));
     } else {
       float local_max_depth = maxDepth(node_path[0]);
-      while (countNamedNodes(node_path[0], 0, local_max_depth) > dynamicMaxNodes) {
+      while (countNodes(node_path[0], 0, local_max_depth) > dynamicMaxNodes) {
         local_max_depth = local_max_depth * dynamicAdjust;
       }
       max_depth_calc.put(key_string, Float.toString(local_max_depth));
@@ -102,7 +102,10 @@ void draw() {
       int num_ends = countEnds(node_path[0], 0, max_depth);
       calculateTree( treegraph_current, treeoflife.root.node_ID, 'b', 0, num_ends );
       if (do_nudgeNodes == true) {
-        nudgeNodes( treegraph_current );
+        while (nudgeNodes( treegraph_current )) {
+        };
+      } else if (do_hideOverlapNodes == true) {
+        hideOverlapNodes( treegraph_current );
       }
     }
     visible_node_positions = new int[0][3];  // Always clear before calling drawTree
@@ -137,7 +140,10 @@ void draw() {
         int num_ends = countEnds(node_path[0], 0, max_depth);
         calculateTree( treegraph_current, treeoflife.root.node_ID, 'b', 0, num_ends );
         if (do_nudgeNodes == true) {
-          nudgeNodes( treegraph_current );
+          while (nudgeNodes( treegraph_current )) {
+          };
+        } else if (do_hideOverlapNodes == true) {
+          hideOverlapNodes( treegraph_current );
         }
       }
       // next graph
@@ -148,7 +154,10 @@ void draw() {
         int num_ends = countEnds(node_path[1], 0, max_depth2);
         calculateTree( treegraph_next, treeoflife.root.node_ID, 'b', 0, num_ends );
         if (do_nudgeNodes == true) {
-          nudgeNodes( treegraph_next );
+          while (nudgeNodes( treegraph_current )) {
+          };
+        } else if (do_hideOverlapNodes == true) {
+          hideOverlapNodes( treegraph_next );
         }
       }
 
