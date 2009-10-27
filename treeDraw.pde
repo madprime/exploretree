@@ -24,13 +24,13 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
       if (treeoflife.isAncestorOf(curr_ID, treegraph.base_node_ID)) {
 //println("...is ancestor of " + treegraph.base_node_ID);
         // This node is ancestor to the base node, we can assume there are children
+        char inherit_side = 'r';  // child nodes "before" are on the right because of radial coords
         for (int i = 0; i < curr_node.children.length; i++) {
           if (curr_node.children[i] != curr_ID) { // skip child if it's the same as parent to prevent recursion at root
             radial_position[0] = 0;
             radial_position[1] = PI / 2;
             xy_position = radial_to_xy(radial_position);
-            treegraph.addPosition(curr_ID,false,xy_position[0],xy_position[1]);
-            char inherit_side = 'r';  // child nodes "before" are on the right because of radial coords
+            treegraph.addPosition(curr_ID,false,xy_position[0],xy_position[1],radial_position[0],radial_position[1]);
             if (treeoflife.isAncestorOf(curr_node.children[i],treegraph.base_node_ID) || (curr_node.children[i] == treegraph.base_node_ID)) {
               calculateTree( treegraph, curr_node.children[i], 'b', end_nodes_filled, total_end_nodes );
               inherit_side = 'l';
@@ -47,7 +47,7 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
           radial_position[0] = 0;
           radial_position[1] = PI / 2;
           xy_position = radial_to_xy(radial_position);
-          treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1]);
+          treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1], radial_position[0], radial_position[1]);
           if (curr_node.children.length > 0) {
             for (int i = 0; i < curr_node.children.length; i++) {
               if (curr_node.children[i] != curr_ID) { // skip child if it's the same as parent to prevent recursion at root
@@ -78,19 +78,19 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
                 radial_position[1] = ave_radial;
                 xy_position = radial_to_xy(radial_position);
 //println("Radial pos: " + radial_position[0] + ", " + radial_position[1] + "... xy: " + xy_position[0] + ", " + xy_position[1]);
-                treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1]);
+                treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1],radial_position[0],radial_position[1]);
               } else {
                 radial_position[1] = PI * (end_nodes_filled + 0.5) / total_end_nodes;
                 end_nodes_filled += 1;
                 xy_position = radial_to_xy(radial_position);
-                treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1]);
+                treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1],radial_position[0],radial_position[1]);
               }
             } else {
               radial_position[0] = maxRadius;
               radial_position[1] = PI * (end_nodes_filled + 0.5) / total_end_nodes;
               end_nodes_filled += 1;
               xy_position = radial_to_xy(radial_position);
-              treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1]);
+              treegraph.addPosition(curr_ID,true,xy_position[0],xy_position[1],radial_position[0],radial_position[1]);
               if (curr_node.children.length > 0) {
                 for (int i = 0; i < curr_node.children.length; i++) {
                   calculateTree( treegraph, curr_node.children[i], 'a', end_nodes_filled, total_end_nodes );
@@ -110,7 +110,7 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
       radial_position[0] = 0;
       radial_position[1] = 0;
       xy_position = radial_to_xy(radial_position);
-      treegraph.addPosition(curr_ID,false,xy_position[0],xy_position[1]);
+      treegraph.addPosition(curr_ID,false,xy_position[0],xy_position[1],radial_position[0],radial_position[1]);
       if (curr_node.children.length > 0) {
         for (int i = 0; i < curr_node.children.length; i++) {
           calculateTree( treegraph, curr_node.children[i], 'r', end_nodes_filled, total_end_nodes );
@@ -121,7 +121,7 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
       radial_position[0] = 0;
       radial_position[1] = PI;
       xy_position = radial_to_xy(radial_position);
-      treegraph.addPosition(curr_ID,false,xy_position[0],xy_position[1]);
+      treegraph.addPosition(curr_ID,false,xy_position[0],xy_position[1],radial_position[0],radial_position[1]);
       if (curr_node.children.length > 0) {
         for (int i = 0; i < curr_node.children.length; i++) {
           calculateTree( treegraph, curr_node.children[i], 'l', end_nodes_filled, total_end_nodes );
@@ -133,7 +133,7 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
       xy_position[0] = parent_plot_data.x_coord;  // inherit parent coordinates, but not visible
       xy_position[1] = parent_plot_data.y_coord;
       radial_position = xy_to_radial(xy_position);
-      treegraph.addPosition(curr_ID,false,parent_plot_data.x_coord,parent_plot_data.y_coord);
+      treegraph.addPosition(curr_ID,false,parent_plot_data.x_coord,parent_plot_data.y_coord,parent_plot_data.r,parent_plot_data.theta);
       if (curr_node.children.length > 0) {
         for (int i = 0; i < curr_node.children.length; i++) {
           calculateTree( treegraph, curr_node.children[i], 'a', end_nodes_filled, total_end_nodes );
@@ -250,6 +250,10 @@ boolean nudgeNodes (TreeGraphInstance treegraph) {
                 high_node.y_coord = high_node.y_coord - 1;
                 vert_overlap = (high_node.y_coord + (font_size / 2)) >= (low_node.y_coord - (font_size / 2));
               }
+              float[] temp_xy = { high_node.x_coord, high_node.y_coord };
+              float[] temp_radial = xy_to_radial(temp_xy);
+              high_node.r = temp_radial[0];
+              high_node.theta = temp_radial[1];
             }
           }
         }
@@ -348,8 +352,10 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   NodePlotData curr_data_to = treegraph_to.getPosition(curr_ID);
 //println(curr_data_from.x_coord);
 //println(curr_data_to.x_coord);
-  float curr_x = (curr_data_from.x_coord) * (1 - how_far) + curr_data_to.x_coord * (how_far);
-  float curr_y = (curr_data_from.y_coord) * (1 - how_far) + curr_data_to.y_coord * (how_far);
+  float[] curr_radial = new float[2];
+  curr_radial[0] = (curr_data_from.r) * (1 - how_far) + curr_data_to.r * (how_far);
+  curr_radial[1] = (curr_data_from.theta) * (1 - how_far) + curr_data_to.theta * (how_far);
+  float[] curr_xy = radial_to_xy(curr_radial);
   float visibility = 0;
   float text_visibility = 0;
   if ( curr_data_from.is_visible ) {
@@ -369,8 +375,10 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
       if (curr_node.children[i] != curr_ID && (curr_data_from.is_visible || curr_data_to.is_visible || treeoflife.isAncestorOf(curr_ID, treegraph_from.base_node_ID) || treeoflife.isAncestorOf(curr_ID, treegraph_to.base_node_ID) )) {   // prevent infinite recursion at root
         NodePlotData child_data_from = treegraph_from.getPosition(curr_node.children[i]);
         NodePlotData child_data_to = treegraph_to.getPosition(curr_node.children[i]);
-        float child_x = (child_data_from.x_coord) * (1 - how_far) + (child_data_to.x_coord) * (how_far);
-        float child_y = (child_data_from.y_coord) * (1 - how_far) + (child_data_to.y_coord) * (how_far);
+        float[] child_radial = new float[2];
+        child_radial[0] = (child_data_from.r) * (1 - how_far) + child_data_to.r * (how_far);
+        child_radial[1] = (child_data_from.theta) * (1 - how_far) + child_data_to.theta * (how_far);
+        float[] child_xy = radial_to_xy(child_radial);
         float child_visibility = 0;
         if (child_data_from.is_visible) {
           child_visibility = child_visibility + (1 - how_far);
@@ -381,9 +389,9 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
         if ( child_visibility > 0.001) {
           if (line_type == 'a') {
             noFill();
-            drawArcLine(curr_x, curr_y, child_x, child_y);
+            drawArcLine(curr_xy[0], curr_xy[1], child_xy[0], child_xy[1]);
           } else { 
-            line(curr_x,curr_y,child_x, child_y);
+            line(curr_xy[0],curr_xy[1],child_xy[0], child_xy[1]);
           }
         }
         drawIntermediateTree(treegraph_from, treegraph_to, how_far, curr_node.children[i]);
@@ -396,9 +404,9 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   name = name.replace("_"," ");
   
   //println(name);
-  text(name,curr_x,curr_y);
+  text(name,curr_xy[0],curr_xy[1]);
   
-  int[] posarraydata = { (int) (curr_x + 0.5), (int) (curr_y + 0.5), curr_ID };
+  int[] posarraydata = { (int) (curr_xy[0] + 0.5), (int) (curr_xy[1] + 0.5), curr_ID };
   visible_node_positions = (int[][]) append(visible_node_positions, posarraydata);  
 }
 

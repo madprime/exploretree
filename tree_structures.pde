@@ -12,13 +12,17 @@ class NodePlotData {
   boolean text_visible;
   float x_coord;
   float y_coord;
+  float r;
+  float theta;
   
-  NodePlotData(int passed_node_ID, boolean passed_is_visible, float passed_x_coord, float passed_y_coord) {
+  NodePlotData(int passed_node_ID, boolean passed_is_visible, float passed_x_coord, float passed_y_coord, float passed_r, float passed_theta) {
     node_ID = passed_node_ID;
     is_visible = passed_is_visible;
     text_visible = true;
     x_coord = passed_x_coord;
     y_coord = passed_y_coord;
+    r = passed_r;
+    theta = passed_theta;
   }
 }
 
@@ -36,8 +40,8 @@ class TreeGraphInstance {
     node_positions = new HashMap();
   }
   
-  void addPosition(int graphed_node_ID, boolean is_visible, float x_coord, float y_coord) {
-    NodePlotData plotdata = new NodePlotData(graphed_node_ID, is_visible, x_coord, y_coord);
+  void addPosition(int graphed_node_ID, boolean is_visible, float x_coord, float y_coord, float r, float theta) {
+    NodePlotData plotdata = new NodePlotData(graphed_node_ID, is_visible, x_coord, y_coord, r, theta);
     node_positions.put(graphed_node_ID, plotdata);
   }
   

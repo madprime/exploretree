@@ -154,7 +154,7 @@ void draw() {
         int num_ends = countEnds(node_path[1], 0, max_depth2);
         calculateTree( treegraph_next, treeoflife.root.node_ID, 'b', 0, num_ends );
         if (do_nudgeNodes == true) {
-          while (nudgeNodes( treegraph_current )) {
+          while (nudgeNodes( treegraph_next )) {
           };
         } else if (do_hideOverlapNodes == true) {
           hideOverlapNodes( treegraph_next );
@@ -165,7 +165,7 @@ void draw() {
       drawIntermediateTree(treegraph_current, treegraph_next, between_node_progress, treeoflife.root.node_ID);
 
       // increase progress variable, remove first element of array if progress is complete to next node
-      between_node_progress = between_node_progress + (1.0 / steps_between_nodes);
+      between_node_progress = between_node_progress + ( (node_path.length - 1.0) / steps_between_nodes);
 //println("between_node_progress from " + treeoflife.getNode(node_path[0]).node_name + " going to " + treeoflife.getNode(node_path[1]).node_name + " is now " + between_node_progress);
       if (between_node_progress >= 0.9999) {
         // remake array without first element
