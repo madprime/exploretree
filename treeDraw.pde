@@ -323,6 +323,7 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
       if (curr_node.children[i] != curr_ID) {   // prevent infinite recursion at root
         NodePlotData child_data = treegraph.getPosition(curr_node.children[i]);
         if (child_data.is_visible) {
+          setColor(curr_node.children[i]);
           if (line_type == 'a') {
             noFill();
             drawArcLine(curr_data.x_coord, curr_data.y_coord, child_data.x_coord, child_data.y_coord);
@@ -387,6 +388,7 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
           child_visibility = child_visibility + (how_far);
         }
         if ( child_visibility > 0.001) {
+          setColor(curr_node.children[i]);
           if (line_type == 'a') {
             noFill();
             drawArcLine(curr_xy[0], curr_xy[1], child_xy[0], child_xy[1]);
@@ -408,6 +410,55 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   
   int[] posarraydata = { (int) (curr_xy[0] + 0.5), (int) (curr_xy[1] + 0.5), curr_ID };
   visible_node_positions = (int[][]) append(visible_node_positions, posarraydata);  
+}
+
+void setColor(int node_ID) {
+  int pointA = node_ID;
+  int pointB = search_node_ID;
+  if (search_node_ID == -1) {
+    pointB = treeoflife.root.node_ID;
+  }
+  String dist_key = Integer.toString(pointA) + "_" + Integer.toString(pointB);
+  float distance;
+  if (calc_distances.containsKey(dist_key)) {
+    distance = (Float) calc_distances.get(dist_key);
+  } else {
+    distance = 1.0 * treeoflife.getDist(pointA, pointB);
+    calc_distances.put(dist_key, (Float) distance);
+  }
+  if (search_node_ID == -1) {
+    float fraction_dist = distance / tree_height;
+    color levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
+    stroke(levelColor,100);
+    strokeWeight(min_stroke_weight);
+  } else {
+    while ( treeoflife.isAncestorOf(pointB,search_node_ID) == false && pointB != treeoflife.root.node_ID) {
+      pointB = treeoflife.getNode(pointB).parent_ID;
+    }
+    String dist2_key = Integer.toString(pointB) + "_" + Integer.toString(treeoflife.root.node_ID);
+    float distance2;
+    if (calc_distances.containsKey(dist2_key)) {
+      distance2 = (Float) calc_distances.get(dist2_key);
+    } else {
+      distance2 = treeoflife.getDist(pointA, pointB);
+      calc_distances.put(dist2_key, (Float) distance2);
+    }
+    strokeWeight(max_stroke_weight);
+    float fraction_dist = 1.0 - distance / distance2;
+    if (fraction_dist < 0) {
+      fraction_dist = 0;
+    } else if (fraction_dist > 1) {
+      fraction_dist = 1;
+    }
+    color levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
+    if (treeoflife.isAncestorOf(node_ID,search_node_ID) || node_ID == search_node_ID) {
+      stroke(levelColor,150);
+      strokeWeight(max_stroke_weight);
+    } else {
+      stroke(levelColor,70);
+      strokeWeight(min_stroke_weight);
+    }
+  }
 }
 
 void drawArcLine(float parent_x, float parent_y, float child_x, float child_y) {

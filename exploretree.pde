@@ -6,7 +6,7 @@
 //           Chris Ball <chris-et@printf.net>
 
 // plot area variables
-int sizeX = 600, sizeY = 400; // plot area size
+int sizeX = 600, sizeY = 600; // plot area size
 float borderFrac = 0.1;      // fraction of space to leave on border
 float treeAreaFrac = 0.6;     // vertical fraction of area to devote to tree drawing
 
@@ -16,21 +16,25 @@ boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes 
 float min_stroke_weight = 3.5, max_stroke_weight = 5;
 color start_color = #0000FF, end_color = #FF0000;
 boolean do_nudgeNodes = true; boolean do_hideOverlapNodes = false;
-
 char line_type = 'v'; // 'a' for "arc-and-line-style" and 'v' or anything else for "v-style" 
 
 // font drawing variables
 float font_size = 12;
 String plot_font_type = "Arial";
 PFont plot_font = createFont(plot_font_type,font_size);
+float display_font_size = 12;
+String display_font_type= "Arial";
+PFont display_font = createFont(display_font_type, display_font_size);
 
+// other drawing variables
+float searchBoxY1, searchBoxY2, searchBoxX1, searchBoxX2;
 
 // graphing constants initialized in setup()
 float plotY1, plotY2;    // top and bottom for plot area
 float plotX1, plotX2;    // left and right for plot area
 float centerX, centerY;  // center coordinates for tree
 float maxRadius;         // maximum radius to draw tree
-int tree_height;         // total tree height of the tree data loaded (not only that displayed)
+float tree_height;         // total tree height of the tree data loaded (not only that displayed)
 
 // tree variables
 Tree treeoflife;
@@ -43,6 +47,11 @@ int[][] visible_node_positions;       // array of arrays containing xpos, ypos, 
 int[] node_path = new int[0];
 int steps_between_nodes = 10;         // number of steps to take when animating movement between nodes
 float between_node_progress = 0.0;    // 0 to 1, for animation: how far between two graph states you are
+int search_node_ID = -1;              // -1 if no search node target, node_ID of target if there is one
+boolean searchBoxFocus = false;
+String current_search_input = ""; int[] matched_IDs = new int[0]; String search_name = "";
+int[][] search_match_positions = new int[0][3];       // array of arrays containing xpos, ypos, and nodeID of displayed matches
+HashMap calc_distances = new HashMap();   // key is node pair ( node1 + "_" + node2 ), value is the distance (a float)
 
 void setup() {
   size(sizeX,sizeY);
@@ -54,15 +63,21 @@ void setup() {
   plotX1 = sizeX * borderFrac;
   plotX2 = sizeX * (1 - borderFrac);
   plotY1 = sizeX * borderFrac;
-  plotY2 = sizeY * (1 - borderFrac);
+  plotY2 = plotY1 + (plotX2 - plotX1)/2;
   centerX = (plotX1 + plotX2) / 2;
   centerY = plotY2;
   maxRadius = plotX2 - centerX;
+  searchBoxX1 = sizeX * (borderFrac / 2);
+  searchBoxX2 = sizeX * (1 - borderFrac / 2);
+  searchBoxY1 = plotY2;
+  searchBoxY2 = sizeY * (1 - (borderFrac/2) );
   
   // set up tree structure global variables
   treeoflife = TreeReadNewick("treeoflife.tree");
   treeoflife_positions = new TreePositions();
   node_path = append(node_path, treeoflife.root.node_ID);
+  
+  tree_height = maxDepth(treeoflife.root.node_ID);
   
   smooth();
   //noLoop();
@@ -73,6 +88,10 @@ void draw() {
   background(255);
   strokeWeight(3);
   stroke(0,255,255);
+  fill(0);
+  
+  drawSearchArea();
+  stroke(0);
   fill(0);
 
   // dynamic depth determined if needed
@@ -180,8 +199,97 @@ void draw() {
       println("ERROR");
     }
   }
-   
+  
 }
 
 
+void drawSearchArea() {
+  search_match_positions = new int[0][3];
+  // line to display search text input
+  strokeWeight(1);
+  if (searchBoxFocus == false) {
+    stroke(120);
+    fill(120);
+  } else {
+    stroke(0);
+    fill(0);
+  }
+  textAlign(RIGHT,BOTTOM);
+  textFont(display_font);
+  String searchlinelabel = "Type to search for an organism:";
+  text(searchlinelabel,searchBoxX1+170,searchBoxY1+45);
+  textAlign(LEFT,BOTTOM);
+  line(searchBoxX1+180,searchBoxY1+45,searchBoxX1+380,searchBoxY1+45);
+  text(current_search_input,searchBoxX1+190,searchBoxY1+45);
+  
+  fill(200);
+  noStroke();
+  rect(searchBoxX1, searchBoxY1+60, (searchBoxX2 - searchBoxX1), searchBoxY2 - (searchBoxY1+60));
+  
+  boolean too_many_matches = false;
+  float x_position = searchBoxX1;
+  float y_position = searchBoxY1 + 60 + display_font_size + 5;
+  textAlign(CENTER,CENTER);
+  for (int i = 0; i < matched_IDs.length; i++) {
+    float name_width = textWidth(treeoflife.getNode(matched_IDs[i]).node_name);
+    x_position = x_position + name_width + 30;
+    if (x_position > searchBoxX2) {
+      x_position = searchBoxX1 + name_width + 30;
+      y_position = y_position + display_font_size + 15;
+    }
+    if (y_position < searchBoxY2 - (display_font_size / 2)) {
+      int[] position_data = { (int) (x_position - (20 + name_width)/2 + 0.5), (int) (y_position + 0.5), matched_IDs[i] };
+      search_match_positions = (int[][]) append(search_match_positions, position_data);
+    } else {
+      // Too many matches!
+      search_match_positions = new int[0][3];
+      too_many_matches = true;
+    }
+  }
+  
+  stroke(0);
+  fill(0);
+  if (too_many_matches) {
+    textAlign(LEFT, CENTER);
+    String too_many_match_text = "Too many matches!  Try searching with a longer string.";
+    text(too_many_match_text, searchBoxX1 + 10, searchBoxY1 + 60 + (display_font_size / 2) + 5);
+  } else {
+    if (matched_IDs.length > 0) {
+      textAlign(CENTER,CENTER);
+      for (int i = 0; i < matched_IDs.length; i++) {
+        int[] position_data = search_match_positions[i];
+        if (position_data[2] == search_node_ID) {
+          fill(255);
+          noStroke();
+          float text_width = textWidth(treeoflife.getNode(position_data[2]).node_name);
+          ellipse(position_data[0],position_data[1]+1,text_width+display_font_size,display_font_size*2);
+          fill(0);
+          stroke(0);
+        }
+        String curr_name = treeoflife.getNode(position_data[2]).node_name;
+        curr_name = curr_name.replace("_"," ");
+        text(curr_name,position_data[0],position_data[1]);
+      }
+    }
+  }
+}
 
+int[] searchNodes(String searched_name) {
+  int[] matched_IDs = new int[0];
+  Object[] keys = treeoflife.tree_data.keySet().toArray();
+  if (searched_name.length() > 0) {
+    for (int i = 0; i < keys.length - 1; i++) {
+      Integer key_i = (Integer) keys[i];
+      TreeNode curr_node = treeoflife.getNode(key_i);
+      String curr_name = treeoflife.getNode(key_i).node_name;
+      if (curr_name.length() > 0) {
+        String[] matched_IDs_temp1 = match(searched_name.toLowerCase(), curr_name.toLowerCase());
+        String[] matched_IDs_temp2 = match(curr_name.toLowerCase(), searched_name.toLowerCase());
+        if (matched_IDs_temp1 != null || matched_IDs_temp2 != null) {
+        matched_IDs = append(matched_IDs, (int) key_i);
+        }
+      }
+    }
+  }
+  return matched_IDs;
+}

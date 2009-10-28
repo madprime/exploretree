@@ -16,12 +16,20 @@ void mousePressed() {
     //node_path = append(node_path, closestNode);
     println("Appended to node_path " + closestNode + ". length is now " + node_path.length);
   }
-  
-/*  if (abs(mouseX - (plotX1+170)) <= 200 && abs(mouseY - (plotY2+39)) <= 12) {
-    searchBoxFocus = 1;
+  if ( searchBoxX1 <= mouseX && searchBoxX2 >= mouseX && searchBoxY1 <= mouseY && searchBoxY2 >= mouseY) {
+    searchBoxFocus = true;
   } else {
-    searchBoxFocus = 0;
+    searchBoxFocus = false;
   }
+  minDist = 30;
+  for (int i=0; i < search_match_positions.length; i++) {
+    float distance = pow( (pow((mouseX - search_match_positions[i][0]),2) + pow((mouseY - search_match_positions[i][1]),2)), 0.5 );
+    if (distance < minDist) {
+      search_node_ID = search_match_positions[i][2];
+      minDist = distance;
+    }
+  }
+  /*
   if (abs(mouseX - depthMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= (ButtonSize / 2) && maxDepth > 2) {
     maxDepth--;
   }
@@ -114,27 +122,36 @@ void keyPressed() {
       //println("Appended to node_path " + curr_node.parent_ID + ". length is now " + node_path.length);
     }
   }
-  /* else if (key == CODED && (keyCode == UP || keyCode == RIGHT) && (search_node > 0)) {
-    int[] search_node_to_root_path = nodePath(search_node,0);
-    for (int i = 1; i < search_node_to_root_path.length; i++) {
-      if (node_path[node_path.length-1] == search_node_to_root_path[i]) {
-        node_path = append(node_path,search_node_to_root_path[i-1]);
+  else if (key == CODED && (keyCode == UP || keyCode == RIGHT) && (search_node_ID > 0)) {
+    if (treeoflife.isAncestorOf(node_path[node_path.length - 1],search_node_ID)) {
+      int next_node = -1;
+      for (int i = 0; i < treeoflife.getNode(node_path[node_path.length - 1]).children.length; i++) {
+        int child_ID = treeoflife.getNode(node_path[node_path.length - 1]).children[i];
+        if (child_ID == search_node_ID || treeoflife.isAncestorOf(child_ID, search_node_ID)) {
+          next_node = child_ID;
+        }
+      }
+      if (next_node > 0) {
+        node_path = (int[]) append(node_path, next_node);
       }
     }
   } else {
-    if(key == ENTER)
-    {
-      search_name = current_search_input;
-      current_search_input = "";
+    if (searchBoxFocus) {
+      if(key == ENTER)
+      {
+        matched_IDs = searchNodes(current_search_input);
+        search_node_ID = -1;
+        current_search_input = "";
+      }
+      else if(key == BACKSPACE && current_search_input.length() > 0)
+      {
+        current_search_input = current_search_input.substring(0, current_search_input.length() - 1);
+      }
+      else if (key != CODED) {
+        current_search_input = current_search_input + key;
+      }
     }
-    else if(key == BACKSPACE && current_search_input.length() > 0)
-    {
-      current_search_input = current_search_input.substring(0, current_search_input.length() - 1);
-    }
-    else if (key != CODED) {
-      current_search_input = current_search_input + key;
-    }
-  } */
+  }
 }
 
 
