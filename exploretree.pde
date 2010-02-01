@@ -161,7 +161,7 @@ void draw() {
           max_depth2 = parseFloat((String) max_depth_calc.get(key_string)); // set main variable
         } else {
           float local_max_depth = maxDepth(node_path[1]);   // default to maximum depth
-          while (countNamedNodes(node_path[1], 0, local_max_depth) > dynamicMaxNodes) {
+          while (countNodes(node_path[1], 0, local_max_depth) > dynamicMaxNodes) {
             // trim depth down until it displays no more than the limit set to number of nodes
             local_max_depth = local_max_depth * dynamicAdjust;
           }

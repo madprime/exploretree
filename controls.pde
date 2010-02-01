@@ -149,7 +149,6 @@ void increaseDepth() {
       while (countNodes(node_path[0], 0, local_max_depth) <= new_number_of_nodes) {
         local_max_depth = local_max_depth / dynamicAdjust;
       }
-      local_max_depth = local_max_depth * dynamicAdjust;  // overstepped by one, step back now
       max_depth = local_max_depth;
     }
   }
