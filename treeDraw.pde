@@ -162,7 +162,7 @@ float countEnds ( int curr_ID, float depth, float max_depth ) {
     ends = 1;      
 //println("returning an end at " + curr_ID);
   }
-println(ends);
+//println(ends);
   return ends;
 }
 

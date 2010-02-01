@@ -10,13 +10,13 @@ float borderFrac = 0.1;      // fraction of space to leave on border
 float treeAreaFrac = 0.6;     // vertical fraction of area to devote to tree drawing
 
 // tree drawing variables
-float max_depth = 2.4;
+float max_depth = 2;
 float depth_max_spread = 0.8;
 boolean do_dotted_ends = true; float frac_of_radius = 0.10;
 boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes = 30; HashMap max_depth_calc = new HashMap();
 float min_stroke_weight = 3.5, max_stroke_weight = 5;
 color start_color = #0000FF, end_color = #FF0000;
-boolean do_nudgeNodes = false; boolean do_hideOverlapNodes = true;
+boolean do_nudgeNodes = true; boolean do_hideOverlapNodes = false;
 char line_type = 'v'; // 'a' for "arc-and-line-style" and 'v' or anything else for "v-style" 
 
 // font drawing variables
@@ -29,6 +29,10 @@ PFont display_font = createFont(display_font_type, display_font_size);
 
 // other drawing variables
 float searchBoxY1, searchBoxY2, searchBoxX1, searchBoxX2;
+float ButtonSize = 15;
+float depthMinusButtonX = sizeX-40;
+float depthPlusButtonX = sizeX-20;
+float depthButtonY = 15;
 
 // graphing constants initialized in setup()
 float plotY1, plotY2;    // top and bottom for plot area
@@ -91,7 +95,10 @@ void draw() {
   stroke(0,255,255);
   fill(0);
   
+  // create interactive controls
   drawSearchArea();
+  drawDepthControls();
+
   stroke(0);
   fill(0);
 
@@ -145,6 +152,7 @@ void draw() {
     } 
     else {
       float max_depth2 = max_depth;  // depth of "next tree" defaults to same as "current tree"
+      // get dynamic depth for next tree if needed
       if (do_dynamicDepth == true) {
         // dynamic depth determined for next tree if needed
         String key_string = Integer.toString(node_path[1]) + "_" + Integer.toString(dynamicMaxNodes);
@@ -190,13 +198,13 @@ void draw() {
           hideOverlapNodes( treegraph_next );
         }
       }
-
+      
+      // Draw intermediate tree
       visible_node_positions = new int[0][3];  // clear so clicking during animation doesn't give results
       drawIntermediateTree(treegraph_current, treegraph_next, between_node_progress, treeoflife.root.node_ID);
 
       // increase progress variable, remove first element of array if progress is complete to next node
       between_node_progress = between_node_progress + ( (node_path.length - 1.0) / steps_between_nodes);
-//println("between_node_progress from " + treeoflife.getNode(node_path[0]).node_name + " going to " + treeoflife.getNode(node_path[1]).node_name + " is now " + between_node_progress);
       if (between_node_progress >= 0.9999) {
         // remake array without first element
         int[] new_node_path = { };
@@ -212,93 +220,3 @@ void draw() {
 }
 
 
-void drawSearchArea() {
-  search_match_positions = new int[0][3];
-  // line to display search text input
-  strokeWeight(1);
-  if (searchBoxFocus == false) {
-    stroke(120);
-    fill(120);
-  } else {
-    stroke(0);
-    fill(0);
-  }
-  textAlign(RIGHT,BOTTOM);
-  textFont(display_font);
-  String searchlinelabel = "Type to search for an organism:";
-  text(searchlinelabel,searchBoxX1+170,searchBoxY1+45);
-  textAlign(LEFT,BOTTOM);
-  line(searchBoxX1+180,searchBoxY1+45,searchBoxX1+380,searchBoxY1+45);
-  text(current_search_input,searchBoxX1+190,searchBoxY1+45);
-  
-  fill(200);
-  noStroke();
-  rect(searchBoxX1, searchBoxY1+60, (searchBoxX2 - searchBoxX1), searchBoxY2 - (searchBoxY1+60));
-  
-  boolean too_many_matches = false;
-  float x_position = searchBoxX1;
-  float y_position = searchBoxY1 + 60 + display_font_size + 5;
-  textAlign(CENTER,CENTER);
-  for (int i = 0; i < matched_IDs.length; i++) {
-    float name_width = textWidth(treeoflife.getNode(matched_IDs[i]).node_name);
-    x_position = x_position + name_width + 30;
-    if (x_position > searchBoxX2) {
-      x_position = searchBoxX1 + name_width + 30;
-      y_position = y_position + display_font_size + 15;
-    }
-    if (y_position < searchBoxY2 - (display_font_size / 2)) {
-      int[] position_data = { (int) (x_position - (20 + name_width)/2 + 0.5), (int) (y_position + 0.5), matched_IDs[i] };
-      search_match_positions = (int[][]) append(search_match_positions, position_data);
-    } else {
-      // Too many matches!
-      search_match_positions = new int[0][3];
-      too_many_matches = true;
-    }
-  }
-  
-  stroke(0);
-  fill(0);
-  if (too_many_matches) {
-    textAlign(LEFT, CENTER);
-    String too_many_match_text = "Too many matches!  Try searching with a longer string.";
-    text(too_many_match_text, searchBoxX1 + 10, searchBoxY1 + 60 + (display_font_size / 2) + 5);
-  } else {
-    if (matched_IDs.length > 0) {
-      textAlign(CENTER,CENTER);
-      for (int i = 0; i < matched_IDs.length; i++) {
-        int[] position_data = search_match_positions[i];
-        if (position_data[2] == search_node_ID) {
-          fill(255);
-          noStroke();
-          float text_width = textWidth(treeoflife.getNode(position_data[2]).node_name);
-          ellipse(position_data[0],position_data[1]+1,text_width+display_font_size,display_font_size*2);
-          fill(0);
-          stroke(0);
-        }
-        String curr_name = treeoflife.getNode(position_data[2]).node_name;
-        curr_name = curr_name.replace("_"," ");
-        text(curr_name,position_data[0],position_data[1]);
-      }
-    }
-  }
-}
-
-int[] searchNodes(String searched_name) {
-  int[] matched_IDs = new int[0];
-  Object[] keys = treeoflife.tree_data.keySet().toArray();
-  if (searched_name.length() > 0) {
-    for (int i = 0; i < keys.length - 1; i++) {
-      Integer key_i = (Integer) keys[i];
-      TreeNode curr_node = treeoflife.getNode(key_i);
-      String curr_name = treeoflife.getNode(key_i).node_name;
-      if (curr_name.length() > 0) {
-        String[] matched_IDs_temp1 = match(searched_name.toLowerCase(), curr_name.toLowerCase());
-        String[] matched_IDs_temp2 = match(curr_name.toLowerCase(), searched_name.toLowerCase());
-        if (matched_IDs_temp1 != null || matched_IDs_temp2 != null) {
-        matched_IDs = append(matched_IDs, (int) key_i);
-        }
-      }
-    }
-  }
-  return matched_IDs;
-}

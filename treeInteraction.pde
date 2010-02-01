@@ -3,33 +3,49 @@ void mousePressed() {
   float minDist = 30;                                 // don't change position unless at least this close to a node
   int closestNode = node_path[node_path.length - 1];  // default to the latest target base node
 
-  for (int i=0; i<visible_node_positions.length; i++) {
-    float distance = pow( (pow((mouseX - visible_node_positions[i][0]),2) + pow((mouseY - visible_node_positions[i][1]),2)), 0.5 );
-    if (distance < minDist) {
-      closestNode = visible_node_positions[i][2];
-      minDist = distance;
+  boolean target_found = false;
+  // search-for-node node choice by clicking on the displayed name
+  
+  if (abs(mouseX - depthMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= (ButtonSize / 2)) {
+    reduceDepth();
+    target_found = true;
+  } else if (abs(mouseX - depthPlusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= ButtonSize / 2) {
+    increaseDepth();
+    target_found = true;
+  }
+  
+  if (! target_found) {
+    for (int i=0; i < search_match_positions.length; i++) {
+      float distance = pow( (pow((mouseX - search_match_positions[i][0]),2) + pow((mouseY - search_match_positions[i][1]),2)), 0.5 );
+      if (distance < minDist) {
+        search_node_ID = search_match_positions[i][2];
+        minDist = distance;
+        target_found = true;
+      }
     }
   }
-  if (closestNode != node_path[0] && closestNode != node_path[node_path.length - 1]) {
-    println("node_path " + closestNode + " length is now " + node_path.length);
-    node_path = treeoflife.getNodePath(node_path[0],closestNode);
-    //node_path = append(node_path, closestNode);
-    println("Appended to node_path " + closestNode + ". length is now " + node_path.length);
+  if (! target_found) {
+    for (int i=0; i<visible_node_positions.length; i++) {
+      float distance = pow( (pow((mouseX - visible_node_positions[i][0]),2) + pow((mouseY - visible_node_positions[i][1]),2)), 0.5 );
+      if (distance < minDist) {
+        closestNode = visible_node_positions[i][2];
+        minDist = distance;
+      }
+    }
+    if (closestNode != node_path[0] && closestNode != node_path[node_path.length - 1]) {
+      //println("node_path " + closestNode + " length is now " + node_path.length);
+      node_path = treeoflife.getNodePath(node_path[0],closestNode);
+      //node_path = append(node_path, closestNode);
+      //println("Appended to node_path " + closestNode + ". length is now " + node_path.length);
+      target_found = true;
+    }
   }
   if ( searchBoxX1 <= mouseX && searchBoxX2 >= mouseX && searchBoxY1 <= mouseY && searchBoxY2 >= mouseY) {
     searchBoxFocus = true;
   } else {
     searchBoxFocus = false;
   }
-  // search-for-node node choice by clicking on the displayed name
-  minDist = 30;
-  for (int i=0; i < search_match_positions.length; i++) {
-    float distance = pow( (pow((mouseX - search_match_positions[i][0]),2) + pow((mouseY - search_match_positions[i][1]),2)), 0.5 );
-    if (distance < minDist) {
-      search_node_ID = search_match_positions[i][2];
-      minDist = distance;
-    }
-  }
+  
 }
 
 void keyPressed() {

@@ -55,7 +55,7 @@ Tree TreeReadFlatfile(String filename) {
     if (distance_column >= 0) { curr_distance = parseFloat(node_data[distance_column]); }
     TreeNode currNode = new TreeNode(curr_ID, curr_parent, curr_name, curr_distance);
     t.addNode(currNode);
-    println(i + " " + node_data[2] + " next...");
+    //println(i + " " + node_data[2] + " next...");
   }
   
   return t;
@@ -95,7 +95,7 @@ Tree TreeReadNewick(String filename) {
           // move current node to parent, make new node
           curr_node_parent = curr_node_ID;
           largest_node_ID++; curr_node_ID = largest_node_ID;
-          println("TreeReadNewick: Open paren: moving " + curr_node_parent + " to parent, current node is now " + curr_node_ID);
+          //println("TreeReadNewick: Open paren: moving " + curr_node_parent + " to parent, current node is now " + curr_node_ID);
           path_to_root = (int[]) append(path_to_root, curr_node_parent);
           // clear old variables
           curr_name = new char[0]; curr_name_buffer = new char[0];
@@ -103,11 +103,11 @@ Tree TreeReadNewick(String filename) {
           hit_colon = false;
           // store new node
           this_node = new TreeNode(curr_node_ID, curr_node_parent, "", 1.0);
-          println("TreeReadNewick: Add node...");
+          //println("TreeReadNewick: Add node...");
           t.addNode(this_node);
           break;
         case ',':
-          println("TreeReadNewick: Comma: fixing " + curr_node_ID + " to have name " + new String(curr_name));
+          //println("TreeReadNewick: Comma: fixing " + curr_node_ID + " to have name " + new String(curr_name));
           // record name and distance, if any
           if (curr_name.length > 0) {
             t.getNode(curr_node_ID).node_name = new String(curr_name);
@@ -123,12 +123,12 @@ Tree TreeReadNewick(String filename) {
           curr_node_parent = path_to_root[path_to_root.length - 1];
           largest_node_ID++;
           curr_node_ID = largest_node_ID;
-          println("TreeReadNewick:   ...parent remains " + curr_node_parent + " and current node is now " + curr_node_ID);
+          //println("TreeReadNewick:   ...parent remains " + curr_node_parent + " and current node is now " + curr_node_ID);
           this_node = new TreeNode(curr_node_ID, curr_node_parent, "", 1.0);
           t.addNode(this_node);
           break;
         case ')':
-          println("TreeReadNewick: Close paren: fixing " + curr_node_ID + " to have name " + new String(curr_name));
+          //println("TreeReadNewick: Close paren: fixing " + curr_node_ID + " to have name " + new String(curr_name));
           //record name and distance, if any
           if (curr_name.length > 0) {
             t.getNode(curr_node_ID).node_name = new String(curr_name);
@@ -148,7 +148,7 @@ Tree TreeReadNewick(String filename) {
           }
           path_to_root = new_path;
           curr_node_parent = path_to_root[path_to_root.length - 1];
-          println("TreeReadNewick:    ...parent is now " + curr_node_parent + " and current node is back to " + curr_node_ID);
+          //println("TreeReadNewick:    ...parent is now " + curr_node_parent + " and current node is back to " + curr_node_ID);
           break;
         case '[': 
           in_brackets = true;
@@ -160,7 +160,7 @@ Tree TreeReadNewick(String filename) {
           hit_colon = true;
           break;
         case ';':
-          println("TreeReadNewick: Semicolon encountered... this should be the end");
+          //println("TreeReadNewick: Semicolon encountered... this should be the end");
           if (curr_name.length > 0) {
             t.getNode(curr_node_ID).node_name = new String(curr_name);
             curr_name = new char[0]; curr_name_buffer = new char[0];
