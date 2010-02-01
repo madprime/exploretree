@@ -21,6 +21,7 @@ void mousePressed() {
   } else {
     searchBoxFocus = false;
   }
+  // search-for-node node choice by clicking on the displayed name
   minDist = 30;
   for (int i=0; i < search_match_positions.length; i++) {
     float distance = pow( (pow((mouseX - search_match_positions[i][0]),2) + pow((mouseY - search_match_positions[i][1]),2)), 0.5 );
@@ -29,89 +30,6 @@ void mousePressed() {
       minDist = distance;
     }
   }
-  /*
-  if (abs(mouseX - depthMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= (ButtonSize / 2) && maxDepth > 2) {
-    maxDepth--;
-  }
-  else if (abs(mouseX - depthPlusButtonX) <= (ButtonSize / 2) && abs(mouseY - depthButtonY) <= ButtonSize / 2) {
-    maxDepth++;
-  }
-  else if (abs(mouseX - fontMinusButtonX) <= (ButtonSize / 2) && abs(mouseY - fontButtonY) <= (ButtonSize / 2) && font_size > 1) {
-    font_size--;
-    plot_font = createFont("Arial",font_size);
-  }
-  else if (abs(mouseX - fontPlusButtonX) <= (ButtonSize / 2) && abs(mouseY - fontButtonY) <= ButtonSize / 2) {
-    font_size++;
-    plot_font = createFont("Arial",font_size);
-  }
-  else if ( (abs(mouseX - navLeftButtonX) <= (ButtonSize / 2) && abs(mouseY - navOutButtonY) <= ButtonSize / 2) || (abs(mouseX - navDownButtonX) <= (ButtonSize / 2) && abs(mouseY - navOutButtonY) <= ButtonSize / 2) ) {
-    if (node_path[node_path.length-1] > 0) {    // don't back up if already at the bottom
-      TreeNode Node = treeoflife.getNodeByKey(node_path[node_path.length-1]);
-      int parent_node_key = Node.parent().key;
-        
-      // find new node path
-      if (node_path.length == 1) {
-        node_path = nodePath(node_path[0],parent_node_key);
-      } else {
-        int[] tempnodepath1 = nodePath(node_path[0],parent_node_key);
-        int[] tempnodepath2 = nodePath(node_path[1],parent_node_key);
-        if (tempnodepath1.length > tempnodepath2.length) {    // we were already backing up
-          node_path = tempnodepath1;
-        } else {
-          node_path = tempnodepath2;
-          node_path_progress = 1 - node_path_progress;        // reverse course!
-        }
-      }        
-    }
-  }
-  else if ( ((abs(mouseX - navUpButtonX) <= (ButtonSize / 2) && abs(mouseY - navInButtonY) <= ButtonSize / 2) || (abs(mouseX - navRightButtonX) <= (ButtonSize / 2) && abs(mouseY - navInButtonY) <= ButtonSize / 2)) && (search_node > 0)) {
-    int[] search_node_to_root_path = nodePath(search_node,0);
-    for (int i = 1; i < search_node_to_root_path.length; i++) {
-      if (node_path[node_path.length-1] == search_node_to_root_path[i]) {
-        node_path = append(node_path,search_node_to_root_path[i-1]);
-      }
-    }
-  }
-
-  
-  if (closestNode != node_path[0] && mouseButton == LEFT) {
-    // find new node path
-    if (node_path.length == 1) {
-      node_path = nodePath(node_path[0],closestNode);
-    }
-    else {
-      int[] tempnodepath1 = nodePath(node_path[0],closestNode);
-      int[] tempnodepath2 = nodePath(node_path[1],closestNode);
-      if (tempnodepath1.length > tempnodepath2.length) {  // full steam ahead!
-        node_path = tempnodepath1;
-      } else {                                            // reverse course!
-        node_path = tempnodepath2;
-        node_path_progress = 1 - node_path_progress;
-      }
-    }
-  } 
-else if (mouseButton == RIGHT) {
-      String name = treeoflife.getNodeByKey(closestNode).getName();
-      if (name.length() > 0) {
-        String url = "http://en.wikipedia.org/wiki/" + name;
-        link(url, "_new"); 
-      }
-  }
-  
-  // or search for clicks to name search results
-  int new_search_result = search_node;
-  for (int i=0; i<search_result_positions.length; i++) {
-    float distance = pow( (pow((mouseX - search_result_positions[i][0]),2) + pow((mouseY - search_result_positions[i][1]),2)), 0.5 );
-    if (distance < minDist) {
-      new_search_result = search_result_positions[i][2];
-      minDist = distance;
-    }
-  }
-  if (new_search_result != search_node) {
-    search_node = new_search_result;
-    //println(new_search_result);
-  }
-  */
 }
 
 void keyPressed() {
@@ -123,6 +41,7 @@ void keyPressed() {
     }
   }
   else if (key == CODED && (keyCode == UP || keyCode == RIGHT) && (search_node_ID > 0)) {
+    // move forward with search-for-node if already on path to node
     if (treeoflife.isAncestorOf(node_path[node_path.length - 1],search_node_ID)) {
       int next_node = -1;
       for (int i = 0; i < treeoflife.getNode(node_path[node_path.length - 1]).children.length; i++) {

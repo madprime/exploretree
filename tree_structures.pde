@@ -17,8 +17,8 @@ class NodePlotData {
   
   NodePlotData(int passed_node_ID, boolean passed_is_visible, float passed_x_coord, float passed_y_coord, float passed_r, float passed_theta) {
     node_ID = passed_node_ID;
-    is_visible = passed_is_visible;
-    text_visible = true;
+    is_visible = passed_is_visible;   // is node graphed
+    text_visible = true;              // if graphed, is node label displayed (default true)
     x_coord = passed_x_coord;
     y_coord = passed_y_coord;
     r = passed_r;

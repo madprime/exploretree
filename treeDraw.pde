@@ -6,8 +6,8 @@
 // calculateTree recursively calculates the graphing information for all nodes for a given TreeGraphInstance. 
 // The function should be called from outside with the following parameters:
 // curr_ID as root node of the entire tree, on_side = 'b', end_nodes_filled = 0, 
-// total_end_nodes as calculated by count_end_nodes  ****** NEED TO WRITE THIS ******
-float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, float end_nodes_filled, int total_end_nodes ) {
+// total_end_nodes as calculated by count_end_nodes
+float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, float end_nodes_filled, float total_end_nodes ) {
   
 //println("Running calculateTree on " + curr_ID + ", case " + on_side);
   float[] radial_position = new float[2];
@@ -63,7 +63,8 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
 //println("Is drawn...");
           // This is after the base node
           if (treeoflife.isAncestorOf(treegraph.base_node_ID,curr_ID)) { // Should always be true, this is an error check
-            float distance = treeoflife.getDist(treegraph.base_node_ID,curr_ID);             
+            float distance = treeoflife.getDist(treegraph.base_node_ID,curr_ID);  
+ 
             if (distance < treegraph.depth) {
 //println("Not max depth... " + maxRadius);
               radial_position[0] = maxRadius * (distance / treegraph.depth);
@@ -97,7 +98,8 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
                 }
               }
             }
-          } 
+            
+          }
           else {  // This should be impossible
             println("ERROR");
           }
@@ -146,8 +148,8 @@ float[] calculateTree ( TreeGraphInstance treegraph, int curr_ID, char on_side, 
   return return_data;
 }
 
-int countEnds ( int curr_ID, float depth, float max_depth ) {
-  int ends = 0;
+float countEnds ( int curr_ID, float depth, float max_depth ) {
+  float ends = 0;
   TreeNode curr_node = treeoflife.getNode(curr_ID);
   if (curr_node.children.length > 0 && depth < max_depth) {
     for (int i = 0; i < curr_node.children.length; i++) {
@@ -157,9 +159,10 @@ int countEnds ( int curr_ID, float depth, float max_depth ) {
       }
     }
   } else {
-    ends = 1;
+    ends = 1;      
 //println("returning an end at " + curr_ID);
   }
+println(ends);
   return ends;
 }
 
@@ -206,7 +209,10 @@ float maxDepth ( int curr_ID ) {
   if (curr_node.children.length > 0) {
     float max_child_depth = 0;
     for (int i = 0; i < curr_node.children.length; i++) {
-      float child_depth = (treeoflife.getNode(curr_node.children[i]).distance) + maxDepth(curr_node.children[i]);
+      float child_depth = 0;
+      if (curr_node.children[i] != curr_ID) { // avoid recursion
+        child_depth = (treeoflife.getNode(curr_node.children[i]).distance) + maxDepth(curr_node.children[i]);
+      }
       if (max_child_depth < child_depth) {
         max_child_depth = child_depth;
       }
@@ -222,11 +228,11 @@ boolean nudgeNodes (TreeGraphInstance treegraph) {
   for (int i = 0; i < keys.length - 1; i++) {
     Integer key_i = (Integer) keys[i];
     NodePlotData node1 = treegraph.getPosition(parseInt(key_i));
-    if (node1.is_visible == true && treeoflife.getNode(node1.node_ID).node_name.length() > 0) {
+    if (node1.is_visible == true && node1.text_visible == true && treeoflife.getNode(node1.node_ID).node_name.length() > 0) {
       for (int j = i+1; j < keys.length; j++) {
         Integer key_j = (Integer) keys[j];
         NodePlotData node2 = treegraph.getPosition(parseInt(key_j));
-        if (node2.is_visible == true && treeoflife.getNode(node2.node_ID).node_name.length() > 0) {
+        if (node2.is_visible == true && node2.text_visible == true && treeoflife.getNode(node2.node_ID).node_name.length() > 0) {
           NodePlotData high_node = node1;
           NodePlotData low_node = node2;
           if (node1.y_coord > node2.y_coord) {
@@ -314,8 +320,8 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
   //println("Printing tree at " + curr_ID);
   TreeNode curr_node = treeoflife.getNode(curr_ID);
   NodePlotData curr_data = treegraph.getPosition(curr_ID);
-  float[] coords_parent_xy = {curr_data.x_coord, curr_data.y_coord};
-  float[] coords_parent_radial = xy_to_radial(coords_parent_xy);
+  //float[] coords_parent_xy = {curr_data.x_coord, curr_data.y_coord};
+  //float[] coords_parent_radial = xy_to_radial(coords_parent_xy);
   //println("converted parent " + curr_ID + " xy coords " + coords_parent_xy[0] + " " + coords_parent_xy[1] + " to " + coords_parent_radial[0] + " " + coords_parent_radial[1]);
     
   if (curr_node.children.length > 0 && (curr_data.is_visible || treeoflife.isAncestorOf(curr_ID, treegraph.base_node_ID))) {
@@ -323,7 +329,7 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
       if (curr_node.children[i] != curr_ID) {   // prevent infinite recursion at root
         NodePlotData child_data = treegraph.getPosition(curr_node.children[i]);
         if (child_data.is_visible) {
-          setColor(curr_node.children[i]);
+          setColor(curr_ID, curr_node.children[i]);
           if (line_type == 'a') {
             noFill();
             drawArcLine(curr_data.x_coord, curr_data.y_coord, child_data.x_coord, child_data.y_coord);
@@ -332,6 +338,33 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
           }
         } else {
         //  println("Child node not visible: " + curr_node.children[i]);
+          if (do_dotted_ends == true && curr_data.is_visible) {
+            NodePlotData from_node_data;
+            if (line_type == 'a') {
+              from_node_data = treegraph.getPosition(treegraph.base_node_ID);
+            } else {
+              from_node_data = treegraph.getPosition(curr_node.parent_ID);
+            }
+            // Get slope of dotted line. Then get coords, using length of frac_of_radius * maxRadius.
+            float slope = (curr_data.y_coord - from_node_data.y_coord) / (curr_data.x_coord - from_node_data.x_coord);
+            float x_change = -1 * frac_of_radius * sqrt( pow(maxRadius,2) / (1 + pow(slope,2))) * (curr_data.x_coord - from_node_data.x_coord) / abs(curr_data.x_coord - from_node_data.x_coord);
+            float y_change = slope * x_change;
+            float x_end = curr_data.x_coord - x_change;
+            float y_end = curr_data.y_coord - y_change;
+            // Draw dotted line.
+            int fragments = 3;
+            for(int dot_step=2; dot_step<= fragments * 3; dot_step = dot_step + 3) {
+              float x1 = lerp(curr_data.x_coord, x_end, dot_step/(3.0 * fragments));
+              float y1 = lerp(curr_data.y_coord, y_end, dot_step/(3.0 * fragments));
+              float x2 = lerp(curr_data.x_coord, x_end, (dot_step+1)/(3.0 * fragments));
+              float y2 = lerp(curr_data.y_coord, y_end, (dot_step+1)/(3.0 * fragments));
+              setColor(curr_ID, curr_node.children[i]);
+              line(x1, y1, x2, y2);
+              setColor(curr_ID, curr_node.children[i]);
+              stroke(255, (dot_step) * (255 / (4 * fragments)));
+              line(x1, y1, x2, y2);
+            }
+          }
         }
         drawTree(treegraph, curr_node.children[i]);
       }
@@ -388,7 +421,7 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
           child_visibility = child_visibility + (how_far);
         }
         if ( child_visibility > 0.001) {
-          setColor(curr_node.children[i]);
+          setColor(curr_ID, curr_node.children[i]);
           if (line_type == 'a') {
             noFill();
             drawArcLine(curr_xy[0], curr_xy[1], child_xy[0], child_xy[1]);
@@ -412,35 +445,45 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   visible_node_positions = (int[][]) append(visible_node_positions, posarraydata);  
 }
 
-void setColor(int node_ID) {
+void setColor(int node_ID, int child_ID) {
   int pointA = node_ID;
   int pointB = search_node_ID;
   if (search_node_ID == -1) {
     pointB = treeoflife.root.node_ID;
   }
-  String dist_key = Integer.toString(pointA) + "_" + Integer.toString(pointB);
-  float distance;
-  if (calc_distances.containsKey(dist_key)) {
-    distance = (Float) calc_distances.get(dist_key);
-  } else {
-    distance = 1.0 * treeoflife.getDist(pointA, pointB);
-    calc_distances.put(dist_key, (Float) distance);
-  }
   if (search_node_ID == -1) {
+    // Default coloring
+    String dist_key = Integer.toString(pointA) + "_" + Integer.toString(pointB);
+    float distance;
+    if (calc_distances.containsKey(dist_key)) {
+      distance = (Float) calc_distances.get(dist_key);
+    } else {
+      distance = 1.0 * treeoflife.getDist(pointA, pointB);
+      calc_distances.put(dist_key, (Float) distance);
+    }
     float fraction_dist = distance / tree_height;
     color levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
     stroke(levelColor,100);
     strokeWeight(min_stroke_weight);
   } else {
-    while ( treeoflife.isAncestorOf(pointB,search_node_ID) == false && pointB != treeoflife.root.node_ID) {
-      pointB = treeoflife.getNode(pointB).parent_ID;
+    // The rest is search-for-node based coloring
+    while ( treeoflife.isAncestorOf(pointA,search_node_ID) == false && pointA != treeoflife.root.node_ID) {
+      pointA = treeoflife.getNode(pointA).parent_ID;
+    }
+    String dist_key = Integer.toString(pointA) + "_" + Integer.toString(pointB);
+    float distance;
+    if (calc_distances.containsKey(dist_key)) {
+      distance = (Float) calc_distances.get(dist_key);
+    } else {
+      distance = 1.0 * treeoflife.getDist(pointA, pointB);
+      calc_distances.put(dist_key, (Float) distance);
     }
     String dist2_key = Integer.toString(pointB) + "_" + Integer.toString(treeoflife.root.node_ID);
     float distance2;
     if (calc_distances.containsKey(dist2_key)) {
       distance2 = (Float) calc_distances.get(dist2_key);
     } else {
-      distance2 = treeoflife.getDist(pointA, pointB);
+      distance2 = treeoflife.getDist(pointB, treeoflife.root.node_ID);
       calc_distances.put(dist2_key, (Float) distance2);
     }
     strokeWeight(max_stroke_weight);
@@ -451,7 +494,7 @@ void setColor(int node_ID) {
       fraction_dist = 1;
     }
     color levelColor = lerpColor(start_color,end_color,fraction_dist,HSB);
-    if (treeoflife.isAncestorOf(node_ID,search_node_ID) || node_ID == search_node_ID) {
+    if (treeoflife.isAncestorOf(child_ID,search_node_ID) || child_ID == search_node_ID) {
       stroke(levelColor,150);
       strokeWeight(max_stroke_weight);
     } else {

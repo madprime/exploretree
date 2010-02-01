@@ -177,7 +177,11 @@
                 Bougainvillea,
                 (
                  Prickly_pear,
-                 Saguaro_cactus
+                 Saguaro_cactus,
+                 (
+                  Barrel_cactus,
+                  Peyote
+                 )
                 )Cacti
                ),
                Venus_flytrap,
@@ -453,7 +457,7 @@
                   Sweet_potato
                  ),
                  (
-                  Nightshade,
+                  Deadly_nightshade,
                   (
                    Bell_pepper,
                    Jalapeño,
@@ -589,22 +593,22 @@
            ( 
             (
              Pine,
+             Spruce,
              (
-              Cypress,
-              Juniper,
-              (
-               Redwood,
-               Giant_sequoia
-              )
+              Fir,
+              Cedar
              ),
-             Yew
-            )
-            Spruce,
-            Douglas_fir,
+             Douglas-fir
+            )Pinaceae,
             (
-             Fir,
-             Cedar
-            )
+             Cypress,
+             Juniper,
+             (
+              Redwood,
+              Giant_sequoia
+             )
+            )Cupressaceae,
+            Yew
            )Conifers
           )Gymnosperms
          )Spermatophytes,
