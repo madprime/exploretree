@@ -108,6 +108,50 @@ void drawDepthControls() {
   text(plus_sign,depthPlusButtonX,depthButtonY-2);
 }
 
+void drawFontControls() {
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String fontLabel = "Font Size:";
+  text(fontLabel,fontMinusButtonX - 12, fontButtonY - 2);
+  rect(fontMinusButtonX-0.5*ButtonSize,fontButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(fontPlusButtonX-0.5*ButtonSize,fontButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  text("-",fontMinusButtonX,fontButtonY-2);
+  text("+",fontPlusButtonX,fontButtonY-2);
+}
+
+void drawNavButtons() {
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String navOutLabel = "Back up:";
+  text(navOutLabel,navLeftButtonX - 12, navOutButtonY - 1);
+  rect(navLeftButtonX-0.5*ButtonSize,navOutButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(navDownButtonX-0.5*ButtonSize,navOutButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  String left_arrow = "←";
+  String down_arrow = "↓";
+  text(left_arrow,navLeftButtonX,navOutButtonY-3);
+  text(down_arrow,navDownButtonX,navOutButtonY-3);
+  fill(100);
+  textAlign(RIGHT,CENTER);
+  String navInLabel = "Forward on path:";
+  text(navInLabel,navUpButtonX - 12, navInButtonY - 1);
+  rect(navUpButtonX-0.5*ButtonSize,navInButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  rect(navRightButtonX-0.5*ButtonSize,navInButtonY-0.5*ButtonSize,ButtonSize,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  String right_arrow = "→";
+  String up_arrow = "↑";
+  text(up_arrow,navUpButtonX,navInButtonY-3);
+  text(right_arrow,navRightButtonX,navInButtonY-3);
+}
+
 void reduceDepth() {
   if (node_path.length == 1) {  // Only adjust depth if we're not in animation
     if (do_dynamicDepth) {
@@ -153,3 +197,4 @@ void increaseDepth() {
     }
   }
 }
+

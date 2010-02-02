@@ -14,6 +14,7 @@ float max_depth = 2;
 float depth_max_spread = 0.8;
 boolean do_dotted_ends = true; float frac_of_radius = 0.10;
 boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes = 30; HashMap max_depth_calc = new HashMap();
+boolean do_wikipedia_link = false; float infoTextX = sizeX * (1 - borderFrac); float infoTextY;
 float min_stroke_weight = 3.5, max_stroke_weight = 5;
 color start_color = #0000FF, end_color = #FF0000;
 boolean do_nudgeNodes = true; boolean do_hideOverlapNodes = false;
@@ -33,6 +34,15 @@ float ButtonSize = 15;
 float depthMinusButtonX = sizeX-40;
 float depthPlusButtonX = sizeX-20;
 float depthButtonY = 15;
+float fontMinusButtonX = sizeX-40;
+float fontPlusButtonX = sizeX-20;
+float fontButtonY = 40;
+float navLeftButtonX = 110;
+float navDownButtonX = 130;
+float navOutButtonY = 15;
+float navUpButtonX = 110;
+float navRightButtonX = 130;
+float navInButtonY = 40;
 
 // graphing constants initialized in setup()
 float plotY1, plotY2;    // top and bottom for plot area
@@ -74,10 +84,11 @@ void setup() {
   centerX = (plotX1 + plotX2) / 2;
   centerY = plotY2;
   maxRadius = plotX2 - centerX;  
-  searchBoxX1 = sizeX * (borderFrac * 1.5);
-  searchBoxX2 = sizeX * (1 - borderFrac * 1.5);
+  searchBoxX1 = sizeX * (borderFrac * 1);
+  searchBoxX2 = sizeX * (1 - borderFrac * 1);
   searchBoxY1 = plotY2;
   searchBoxY2 = sizeY * (1 - (borderFrac/2) );
+  infoTextY = plotY2 + 22;
   
   // set up tree structure global variables
   treeoflife = TreeReadNewick("treeoflife.tree"); //treeoflife.tree"); //itol.tree");
@@ -98,9 +109,15 @@ void draw() {
   // create interactive controls
   drawSearchArea();
   drawDepthControls();
+  drawFontControls();
+  drawNavButtons();
+  if (do_wikipedia_link) {
+    drawInfoText();
+  }
 
   stroke(0);
   fill(0);
+  textFont(plot_font);
 
   if (do_dynamicDepth == true) {
     // dynamic depth determined if needed
@@ -220,3 +237,13 @@ void draw() {
 }
 
 
+void drawInfoText() {
+  // info text
+  fill(100);
+  textAlign(RIGHT,CENTER);
+  String info_text1 = "Right click or control-click  ";
+  String info_text2 = "to look for a node's Wikipedia page!";
+  text(info_text1,infoTextX,infoTextY);
+  text(info_text2,infoTextX,infoTextY+18);
+
+}
