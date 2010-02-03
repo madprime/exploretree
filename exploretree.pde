@@ -31,12 +31,19 @@ PFont display_font = createFont(display_font_type, display_font_size);
 // coordinates for search box & buttons, etc
 float searchBoxY1, searchBoxY2, searchBoxX1, searchBoxX2;
 float ButtonSize = 15;
-float depthMinusButtonX = sizeX-40;
-float depthPlusButtonX = sizeX-20;
-float depthButtonY = 15;
+float overlapNudgeButtonX = sizeX - 110;
+float overlapHideButtonX = sizeX - 70;
+float overlapNeitherButtonX = sizeX - 30;
+float overlapButtonY = 15;
+float lineArcButtonX = sizeX-70;
+float lineVButtonX = sizeX-30;
+float lineButtonY = 40;
 float fontMinusButtonX = sizeX-40;
 float fontPlusButtonX = sizeX-20;
-float fontButtonY = 40;
+float fontButtonY = 65;
+float depthMinusButtonX = sizeX-40;
+float depthPlusButtonX = sizeX-20;
+float depthButtonY = 90;
 float navLeftButtonX = 110;
 float navDownButtonX = 130;
 float navOutButtonY = 15;
@@ -116,6 +123,8 @@ void draw() {
   if (do_wikipedia_link) {
     drawInfoText();
   }
+  drawLineButtons();
+  drawOverlapButtons();
 
   stroke(0);
   fill(0);

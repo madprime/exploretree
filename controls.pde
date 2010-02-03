@@ -198,3 +198,55 @@ void increaseDepth() {
   }
 }
 
+void drawLineButtons() {
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String lineButtonLabel = "Line type:";
+  text(lineButtonLabel, lineArcButtonX - 22, lineButtonY - 1);
+  PFont line_button_font = createFont(display_font_type, display_font_size - 3);
+  textFont(line_button_font);
+  rect(lineArcButtonX-0.5*35,lineButtonY-0.5*ButtonSize,35,ButtonSize);
+  rect(lineVButtonX-0.5*35,lineButtonY-0.5*ButtonSize,35,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  String arc_sign = "radial";
+  String v_sign = "slanted";
+  text(arc_sign,lineArcButtonX,lineButtonY-2);
+  text(v_sign,lineVButtonX,lineButtonY-2);
+  fill(255,255,0);
+  if (line_type == 'a') {
+    text(arc_sign,lineArcButtonX,lineButtonY-2);
+  } else {
+    text(v_sign,lineVButtonX,lineButtonY-2);
+  } 
+}
+
+void drawOverlapButtons() {
+  fill(100);
+  noStroke();
+  textFont(display_font);
+  textAlign(RIGHT,CENTER);
+  String overlapButtonLabel = "Overlapping nodes:";
+  text(overlapButtonLabel, overlapNudgeButtonX - 22, overlapButtonY - 1);
+  PFont overlap_button_font = createFont(display_font_type, display_font_size - 3);
+  textFont(overlap_button_font);
+  rect(overlapNudgeButtonX-0.5*35,overlapButtonY-0.5*ButtonSize,35,ButtonSize);
+  rect(overlapHideButtonX-0.5*35,overlapButtonY-0.5*ButtonSize,35,ButtonSize);
+  rect(overlapNeitherButtonX-0.5*35,overlapButtonY-0.5*ButtonSize,35,ButtonSize);
+  fill(255);
+  textAlign(CENTER,CENTER);
+  text("nudge",overlapNudgeButtonX,overlapButtonY-2);
+  text("hide",overlapHideButtonX,overlapButtonY-2);
+  text("neither",overlapNeitherButtonX,overlapButtonY-2);
+  fill(255,255,0);
+  if (do_nudgeNodes) {
+    text("nudge",overlapNudgeButtonX,overlapButtonY-2);
+  } else if (do_hideOverlapNodes) {
+    text("hide",overlapHideButtonX,overlapButtonY-2);
+  } else {
+    text("neither",overlapNeitherButtonX,overlapButtonY-2);
+  } 
+}
+

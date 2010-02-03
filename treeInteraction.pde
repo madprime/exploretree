@@ -44,6 +44,24 @@ void mousePressed() {
       }
     }
     target_found = true;
+  } else if ( abs(mouseX - lineArcButtonX) <= (35 / 2) && abs(mouseY - lineButtonY) <= ButtonSize / 2 ) {
+    line_type = 'a';
+    target_found = true;
+  } else if ( abs(mouseX - lineVButtonX) <= (35 / 2) && abs(mouseY - lineButtonY) <= ButtonSize / 2 ) {
+    line_type = 'v';
+    target_found = true;
+  } else if ( abs(mouseX - overlapNudgeButtonX) <= (35 / 2) && abs(mouseY - overlapButtonY) <= ButtonSize / 2 ) {
+    do_nudgeNodes = true;
+    do_hideOverlapNodes = false;
+    target_found = true;
+  } else if ( abs(mouseX - overlapHideButtonX) <= (35 / 2) && abs(mouseY - overlapButtonY) <= ButtonSize / 2 ) {
+    do_nudgeNodes = false;
+    do_hideOverlapNodes = true;
+    target_found = true;
+  } else if ( abs(mouseX - overlapNeitherButtonX) <= (35 / 2) && abs(mouseY - overlapButtonY) <= ButtonSize / 2 ) {
+    do_nudgeNodes = false;
+    do_hideOverlapNodes = false;
+    target_found = true;
   }
   
   
