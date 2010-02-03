@@ -150,12 +150,12 @@ void draw() {
   // Not in animation - node path has just one entry.
   if (node_path.length == 1) {
     int basenode_ID = node_path[0];
-    if (treeoflife_positions.existsInstance(node_path[0], max_depth, overlapNodes)) {
+    if (treeoflife_positions.existsInstance(node_path[0], max_depth, overlapNodes, font_size)) {
       // get stored tree
-      treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth, overlapNodes);
+      treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth, overlapNodes, font_size);
     }
     else {
-      treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth, overlapNodes); // make tree object
+      treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth, overlapNodes, font_size); // make tree object
       float num_ends = countEnds(node_path[0], 0, max_depth);                           // number of ends that will be visible
       calculateTree( treegraph_current, treeoflife.root.node_ID, 'b', 0, num_ends );  // calculate graphed positions
       if (overlapNodes == 'n') {
@@ -199,10 +199,10 @@ void draw() {
       }
       
       // current graph
-      if (treeoflife_positions.existsInstance(node_path[0], max_depth, overlapNodes)) {
-        treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth, overlapNodes);
+      if (treeoflife_positions.existsInstance(node_path[0], max_depth, overlapNodes, font_size)) {
+        treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth, overlapNodes, font_size);
       } else {
-        treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth, overlapNodes);
+        treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth, overlapNodes, font_size);
         float num_ends = countEnds(node_path[0], 0, max_depth);
         calculateTree( treegraph_current, treeoflife.root.node_ID, 'b', 0, num_ends );
         if (overlapNodes == 'n') {
@@ -213,10 +213,10 @@ void draw() {
         }
       }
       // next graph
-      if (treeoflife_positions.existsInstance(node_path[1], max_depth2, overlapNodes)) {
-        treegraph_next = treeoflife_positions.getInstance(node_path[1], max_depth2, overlapNodes);
+      if (treeoflife_positions.existsInstance(node_path[1], max_depth2, overlapNodes, font_size)) {
+        treegraph_next = treeoflife_positions.getInstance(node_path[1], max_depth2, overlapNodes, font_size);
       } else {
-        treegraph_next = treeoflife_positions.makeInstance(node_path[1], max_depth2, overlapNodes);
+        treegraph_next = treeoflife_positions.makeInstance(node_path[1], max_depth2, overlapNodes, font_size);
         float num_ends = countEnds(node_path[1], 0, max_depth2);
         calculateTree( treegraph_next, treeoflife.root.node_ID, 'b', 0, num_ends );
         if (overlapNodes == 'n') {
