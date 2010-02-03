@@ -14,7 +14,7 @@ float max_depth = 2;
 float depth_max_spread = 0.8;
 boolean do_dotted_ends = true; float frac_of_radius = 0.10;
 boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes = 30; HashMap max_depth_calc = new HashMap();
-boolean do_wikipedia_link = false; float infoTextX = sizeX * (1 - borderFrac); float infoTextY;
+boolean do_wikipedia_link = false;
 float min_stroke_weight = 3.5, max_stroke_weight = 5;
 color start_color = #0000FF, end_color = #FF0000;
 boolean do_nudgeNodes = true; boolean do_hideOverlapNodes = false;
@@ -28,7 +28,7 @@ float display_font_size = 12;
 String display_font_type= "Arial";
 PFont display_font = createFont(display_font_type, display_font_size);
 
-// other drawing variables
+// coordinates for search box & buttons, etc
 float searchBoxY1, searchBoxY2, searchBoxX1, searchBoxX2;
 float ButtonSize = 15;
 float depthMinusButtonX = sizeX-40;
@@ -43,6 +43,8 @@ float navOutButtonY = 15;
 float navUpButtonX = 110;
 float navRightButtonX = 130;
 float navInButtonY = 40;
+float infoTextX = sizeX * (1 - borderFrac);
+float infoTextY;  // set in setup()
 
 // graphing constants initialized in setup()
 float plotY1, plotY2;    // top and bottom for plot area

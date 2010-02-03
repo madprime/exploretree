@@ -381,15 +381,20 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
 }
 
 void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance treegraph_to, float how_far, int curr_ID)  {
+  // Recursively plot intermediate tree between "treegraph_from" and "treegraph_to", 
+  // nodes are interpolations between their locations weighted according to "how_far"
+  // "curr_ID" is the current node being drawn
   TreeNode curr_node = treeoflife.getNode(curr_ID);
-  NodePlotData curr_data_from = treegraph_from.getPosition(curr_ID);
-  NodePlotData curr_data_to = treegraph_to.getPosition(curr_ID);
-//println(curr_data_from.x_coord);
-//println(curr_data_to.x_coord);
+  NodePlotData curr_data_from = treegraph_from.getPosition(curr_ID);  // current node in "from"
+  NodePlotData curr_data_to = treegraph_to.getPosition(curr_ID);      // current node in "to"
+  
+  // get interpolation using radial coordinates, then convert to xy
   float[] curr_radial = new float[2];
   curr_radial[0] = (curr_data_from.r) * (1 - how_far) + curr_data_to.r * (how_far);
   curr_radial[1] = (curr_data_from.theta) * (1 - how_far) + curr_data_to.theta * (how_far);
   float[] curr_xy = radial_to_xy(curr_radial);
+  
+  // set visibility & text visibility as interpolation as well
   float visibility = 0;
   float text_visibility = 0;
   if ( curr_data_from.is_visible ) {
@@ -403,16 +408,25 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
     if (curr_data_to.text_visible) {
       text_visibility = text_visibility + how_far;
     }
-  }  
+  }
+  
+  // If there are children, need to recursively call this drawing function
   if (curr_node.children.length > 0) {
     for (int i = 0; i < curr_node.children.length; i++) {
-      if (curr_node.children[i] != curr_ID && (curr_data_from.is_visible || curr_data_to.is_visible || treeoflife.isAncestorOf(curr_ID, treegraph_from.base_node_ID) || treeoflife.isAncestorOf(curr_ID, treegraph_to.base_node_ID) )) {   // prevent infinite recursion at root
+      boolean should_draw_to_children = (curr_node.children[i] != curr_ID)   // avoid infinite recursion at the root
+                                        && (curr_data_from.is_visible || curr_data_to.is_visible             // current node is visible in "from" or "to"
+                                          || treeoflife.isAncestorOf(curr_ID, treegraph_from.base_node_ID)   // or it descends from the "from" base node 
+                                          || treeoflife.isAncestorOf(curr_ID, treegraph_to.base_node_ID) );  // or it descends from the "to" base node
+      if ( should_draw_to_children ) {
+        // get child's interpolated position
         NodePlotData child_data_from = treegraph_from.getPosition(curr_node.children[i]);
         NodePlotData child_data_to = treegraph_to.getPosition(curr_node.children[i]);
         float[] child_radial = new float[2];
         child_radial[0] = (child_data_from.r) * (1 - how_far) + child_data_to.r * (how_far);
         child_radial[1] = (child_data_from.theta) * (1 - how_far) + child_data_to.theta * (how_far);
         float[] child_xy = radial_to_xy(child_radial);
+        
+        // get child's interpolated visibility
         float child_visibility = 0;
         if (child_data_from.is_visible) {
           child_visibility = child_visibility + (1 - how_far);
@@ -420,27 +434,35 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
         if (child_data_to.is_visible) {
           child_visibility = child_visibility + (how_far);
         }
+        
+        // if the child is at all visible...
         if ( child_visibility > 0.001) {
+          // call setColor to color tree according to setColor's parameters
           setColor(curr_ID, curr_node.children[i]);
+          // draw arc-type tree if "line_type" is "a"
           if (line_type == 'a') {
             noFill();
             drawArcLine(curr_xy[0], curr_xy[1], child_xy[0], child_xy[1]);
-          } else { 
+          }
+          // otherwise draw v-branching tree
+          else { 
             line(curr_xy[0],curr_xy[1],child_xy[0], child_xy[1]);
           }
         }
+        // call drawIntermediateTree for the child node
         drawIntermediateTree(treegraph_from, treegraph_to, how_far, curr_node.children[i]);
       }
     } 
   }
+  
+  // Draw node nome  (after calling children so those lines are behind this)
   fill(0,255 * text_visibility);
   String name = curr_node.node_name;
   textAlign(CENTER,BOTTOM);
   name = name.replace("_"," ");
-  
-  //println(name);
   text(name,curr_xy[0],curr_xy[1]);
   
+  // Record position for later mouse click interaction
   int[] posarraydata = { (int) (curr_xy[0] + 0.5), (int) (curr_xy[1] + 0.5), curr_ID };
   visible_node_positions = (int[][]) append(visible_node_positions, posarraydata);  
 }
