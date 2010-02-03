@@ -317,17 +317,20 @@ boolean hideOverlapNodes (TreeGraphInstance treegraph) {
 }
 
 void drawTree(TreeGraphInstance treegraph, int curr_ID) {
-  //println("Printing tree at " + curr_ID);
+  // Recursively plot tree from each node, then call this function for visible child nodes
   TreeNode curr_node = treeoflife.getNode(curr_ID);
   NodePlotData curr_data = treegraph.getPosition(curr_ID);
-  //float[] coords_parent_xy = {curr_data.x_coord, curr_data.y_coord};
-  //float[] coords_parent_radial = xy_to_radial(coords_parent_xy);
-  //println("converted parent " + curr_ID + " xy coords " + coords_parent_xy[0] + " " + coords_parent_xy[1] + " to " + coords_parent_radial[0] + " " + coords_parent_radial[1]);
-    
-  if (curr_node.children.length > 0 && (curr_data.is_visible || treeoflife.isAncestorOf(curr_ID, treegraph.base_node_ID))) {
+      
+  if (curr_node.children.length > 0) {
     for (int i = 0; i < curr_node.children.length; i++) {
-      if (curr_node.children[i] != curr_ID) {   // prevent infinite recursion at root
+      
+      boolean should_draw_to_child = (curr_node.children[i] != curr_ID)   // avoid infinite recursion at the root
+                                        && (curr_data.is_visible             // current node is visible
+                                          || treeoflife.isAncestorOf(curr_ID, treegraph.base_node_ID));   // or it descends from the base node 
+      if (should_draw_to_child) {
         NodePlotData child_data = treegraph.getPosition(curr_node.children[i]);
+        
+        // if the child is visible, draw a line to it
         if (child_data.is_visible) {
           setColor(curr_ID, curr_node.children[i]);
           if (line_type == 'a') {
@@ -337,7 +340,6 @@ void drawTree(TreeGraphInstance treegraph, int curr_ID) {
             line(curr_data.x_coord,curr_data.y_coord,child_data.x_coord, child_data.y_coord);
           }
         } else {
-        //  println("Child node not visible: " + curr_node.children[i]);
           if (do_dotted_ends == true && curr_data.is_visible) {
             NodePlotData from_node_data;
             if (line_type == 'a') {
@@ -413,11 +415,11 @@ void drawIntermediateTree(TreeGraphInstance treegraph_from, TreeGraphInstance tr
   // If there are children, need to recursively call this drawing function
   if (curr_node.children.length > 0) {
     for (int i = 0; i < curr_node.children.length; i++) {
-      boolean should_draw_to_children = (curr_node.children[i] != curr_ID)   // avoid infinite recursion at the root
+      boolean should_draw_to_child = (curr_node.children[i] != curr_ID)   // avoid infinite recursion at the root
                                         && (curr_data_from.is_visible || curr_data_to.is_visible             // current node is visible in "from" or "to"
                                           || treeoflife.isAncestorOf(curr_ID, treegraph_from.base_node_ID)   // or it descends from the "from" base node 
                                           || treeoflife.isAncestorOf(curr_ID, treegraph_to.base_node_ID) );  // or it descends from the "to" base node
-      if ( should_draw_to_children ) {
+      if ( should_draw_to_child ) {
         // get child's interpolated position
         NodePlotData child_data_from = treegraph_from.getPosition(curr_node.children[i]);
         NodePlotData child_data_to = treegraph_to.getPosition(curr_node.children[i]);
