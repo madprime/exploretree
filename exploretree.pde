@@ -17,7 +17,7 @@ boolean do_dynamicDepth = true; float dynamicAdjust = 0.99; int dynamicMaxNodes 
 boolean do_wikipedia_link = false;
 float min_stroke_weight = 3.5, max_stroke_weight = 5;
 color start_color = #0000FF, end_color = #FF0000;
-boolean do_nudgeNodes = true; boolean do_hideOverlapNodes = false;
+char overlapNodes = 'n'; // 'n' for nudge, 'h' for hide overlap, 'o' for neither (allow overlap)
 char line_type = 'v'; // 'a' for "arc-and-line-style" and 'v' or anything else for "v-style" 
 
 // font drawing variables
@@ -150,19 +150,19 @@ void draw() {
   // Not in animation - node path has just one entry.
   if (node_path.length == 1) {
     int basenode_ID = node_path[0];
-    if (treeoflife_positions.existsInstance(node_path[0], max_depth)) {
+    if (treeoflife_positions.existsInstance(node_path[0], max_depth, overlapNodes)) {
       // get stored tree
-      treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth);
+      treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth, overlapNodes);
     }
     else {
-      treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth); // make tree object
+      treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth, overlapNodes); // make tree object
       float num_ends = countEnds(node_path[0], 0, max_depth);                           // number of ends that will be visible
       calculateTree( treegraph_current, treeoflife.root.node_ID, 'b', 0, num_ends );  // calculate graphed positions
-      if (do_nudgeNodes == true) {
+      if (overlapNodes == 'n') {
         // nudge node positions so that no labels overlap
         while (nudgeNodes( treegraph_current )) {
         };
-      } else if (do_hideOverlapNodes == true) {
+      } else if (overlapNodes == 'h') {
         // hide nodes (child hidden before parent) so no labels overlap
         hideOverlapNodes( treegraph_current );
       }
@@ -199,30 +199,30 @@ void draw() {
       }
       
       // current graph
-      if (treeoflife_positions.existsInstance(node_path[0], max_depth)) {
-        treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth);
+      if (treeoflife_positions.existsInstance(node_path[0], max_depth, overlapNodes)) {
+        treegraph_current = treeoflife_positions.getInstance(node_path[0],max_depth, overlapNodes);
       } else {
-        treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth);
+        treegraph_current = treeoflife_positions.makeInstance(node_path[0], max_depth, overlapNodes);
         float num_ends = countEnds(node_path[0], 0, max_depth);
         calculateTree( treegraph_current, treeoflife.root.node_ID, 'b', 0, num_ends );
-        if (do_nudgeNodes == true) {
+        if (overlapNodes == 'n') {
           while (nudgeNodes( treegraph_current )) {
           };
-        } else if (do_hideOverlapNodes == true) {
+        } else if (overlapNodes == 'h') {
           hideOverlapNodes( treegraph_current );
         }
       }
       // next graph
-      if (treeoflife_positions.existsInstance(node_path[1], max_depth2)) {
-        treegraph_next = treeoflife_positions.getInstance(node_path[1], max_depth2);
+      if (treeoflife_positions.existsInstance(node_path[1], max_depth2, overlapNodes)) {
+        treegraph_next = treeoflife_positions.getInstance(node_path[1], max_depth2, overlapNodes);
       } else {
-        treegraph_next = treeoflife_positions.makeInstance(node_path[1], max_depth2);
+        treegraph_next = treeoflife_positions.makeInstance(node_path[1], max_depth2, overlapNodes);
         float num_ends = countEnds(node_path[1], 0, max_depth2);
         calculateTree( treegraph_next, treeoflife.root.node_ID, 'b', 0, num_ends );
-        if (do_nudgeNodes == true) {
+        if (overlapNodes == 'n') {
           while (nudgeNodes( treegraph_next )) {
           };
-        } else if (do_hideOverlapNodes == true) {
+        } else if (overlapNodes == 'h') {
           hideOverlapNodes( treegraph_next );
         }
       }

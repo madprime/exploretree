@@ -51,16 +51,13 @@ void mousePressed() {
     line_type = 'v';
     target_found = true;
   } else if ( abs(mouseX - overlapNudgeButtonX) <= (35 / 2) && abs(mouseY - overlapButtonY) <= ButtonSize / 2 ) {
-    do_nudgeNodes = true;
-    do_hideOverlapNodes = false;
+    overlapNodes = 'n';
     target_found = true;
   } else if ( abs(mouseX - overlapHideButtonX) <= (35 / 2) && abs(mouseY - overlapButtonY) <= ButtonSize / 2 ) {
-    do_nudgeNodes = false;
-    do_hideOverlapNodes = true;
+    overlapNodes = 'h';
     target_found = true;
   } else if ( abs(mouseX - overlapNeitherButtonX) <= (35 / 2) && abs(mouseY - overlapButtonY) <= ButtonSize / 2 ) {
-    do_nudgeNodes = false;
-    do_hideOverlapNodes = false;
+    overlapNodes = 'o';
     target_found = true;
   }
   

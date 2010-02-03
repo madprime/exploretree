@@ -59,8 +59,8 @@ class TreePositions {
     treegraph_instances = new HashMap();
   }
   
-  boolean existsInstance(int base_node_ID, float depth) {
-    String key_ID = makeKeyString(base_node_ID, depth);
+  boolean existsInstance(int base_node_ID, float depth, char overlap) {
+    String key_ID = makeKeyString(base_node_ID, depth, overlap);
     if (treegraph_instances.containsKey(key_ID)) {
       return true;
     } else {
@@ -68,26 +68,26 @@ class TreePositions {
     }
   }
   
-  TreeGraphInstance makeInstance(int base_node_ID, float depth) {
-    String key_ID = makeKeyString(base_node_ID, depth);
+  TreeGraphInstance makeInstance(int base_node_ID, float depth, char overlap) {
+    String key_ID = makeKeyString(base_node_ID, depth, overlap);
     TreeGraphInstance treegraph = new TreeGraphInstance(base_node_ID, depth);
     treegraph_instances.put(key_ID, treegraph);
     return treegraph;
   }
     
-  TreeGraphInstance getInstance(int base_node_ID, float depth) {
-    String key_ID = makeKeyString(base_node_ID, depth);
+  TreeGraphInstance getInstance(int base_node_ID, float depth, char overlap) {
+    String key_ID = makeKeyString(base_node_ID, depth, overlap);
     return (TreeGraphInstance) treegraph_instances.get(key_ID);
   }
   
-  NodePlotData getPosition(int base_node_ID, float depth, int node_ID) {
-    String key_ID = makeKeyString(base_node_ID, depth);
+  NodePlotData getPosition(int base_node_ID, float depth, char overlap, int node_ID) {
+    String key_ID = makeKeyString(base_node_ID, depth, overlap);
     TreeGraphInstance treegraph = (TreeGraphInstance) treegraph_instances.get(key_ID);
     return treegraph.getPosition(node_ID);
   }
   
-  private String makeKeyString(int base_node_ID, float depth) {
-    String key_ID = Integer.toString(base_node_ID) + "_" + Float.toString(depth);
+  private String makeKeyString(int base_node_ID, float depth, char overlap) {
+    String key_ID = Integer.toString(base_node_ID) + "_" + Float.toString(depth) + "_" + overlap;
     return key_ID;
   }
 }

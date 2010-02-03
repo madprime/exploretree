@@ -241,9 +241,9 @@ void drawOverlapButtons() {
   text("hide",overlapHideButtonX,overlapButtonY-2);
   text("neither",overlapNeitherButtonX,overlapButtonY-2);
   fill(255,255,0);
-  if (do_nudgeNodes) {
+  if (overlapNodes == 'n') {
     text("nudge",overlapNudgeButtonX,overlapButtonY-2);
-  } else if (do_hideOverlapNodes) {
+  } else if (overlapNodes == 'h') {
     text("hide",overlapHideButtonX,overlapButtonY-2);
   } else {
     text("neither",overlapNeitherButtonX,overlapButtonY-2);
